@@ -1,3 +1,4 @@
+import {StockAssetRoot} from "./StockAssetRoot"
 import {Lazy, Option, Progress} from "@opendaw/lib-std"
 import {network, Promises} from "@opendaw/lib-runtime"
 import {OpenDAWHeaders} from "./OpenDAWHeaders"
@@ -5,7 +6,7 @@ import {WclapIndex, WclapIndexEntry} from "./WclapIndex"
 
 // openDAW-hosted bundles at `<FileRoot>/<uuid>.wclap`, gzip without .gz (the host would send Content-Encoding)
 export class OpenWclapAPI {
-    static readonly FileRoot = "https://assets.opendaw.studio/wclaps"
+    static readonly FileRoot = `${StockAssetRoot}/wclaps`
     static readonly IndexFile = `${OpenWclapAPI.FileRoot}/index.json`
 
     @Lazy

@@ -22,6 +22,7 @@ import {PianoPanelShortcuts, PianoPanelShortcutsFactory} from "@/ui/shortcuts/Pi
 import {RegionsShortcuts, RegionsShortcutsFactory} from "@/ui/shortcuts/RegionsShortcuts"
 import {NoteEditorShortcuts, NoteEditorShortcutsFactory} from "@/ui/shortcuts/NoteEditorShortcuts"
 import {SoftwareMIDIShortcuts, SoftwareMIDIShortcutsFactory} from "@/ui/shortcuts/SoftwareMIDIShortcuts"
+import {groupSelectedTracks} from "@/ui/timeline/tracks/audio-unit/TrackGrouping"
 import {RouteLocation} from "@opendaw/lib-jsx"
 
 export namespace StudioShortcutManager {
@@ -88,6 +89,7 @@ export namespace StudioShortcutManager {
             }
         }
         return Terminable.many(
+            gc.register(gs["group-tracks"].shortcut, () => service.runIfProject(groupSelectedTracks)),
             gc.register(gs["project-undo"].shortcut, () => service.runIfProject(project => project.editing.undo()), {allowRepeat: true}),
             gc.register(gs["project-redo"].shortcut, () => service.runIfProject(project => project.editing.redo()), {allowRepeat: true}),
             gc.register(gs["project-open"].shortcut, async () => await service.browseLocalProjects()),

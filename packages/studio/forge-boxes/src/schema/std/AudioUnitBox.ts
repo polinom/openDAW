@@ -60,6 +60,10 @@ export const AudioUnitBox: BoxSchema<Pointers> = {
                 name: "capture",
                 pointerType: Pointers.Capture, mandatory: false
             },
+            31: {type: "pointer", name: "group-parent", pointerType: Pointers.GroupMember, mandatory: false},
+            32: {type: "field", name: "group-children", pointerRules: {accepts: [Pointers.GroupMember], mandatory: false}},
+            33: {type: "boolean", name: "is-group"},
+            34: {type: "boolean", name: "group-collapsed"},
             30: {
                 type: "object", name: "user-interface", class: {
                     name: "AudioUnitUserInterface",

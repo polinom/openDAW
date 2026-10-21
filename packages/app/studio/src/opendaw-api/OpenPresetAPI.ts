@@ -1,3 +1,4 @@
+import {StockAssetRoot} from "./StockAssetRoot"
 import {
     asDefined, DefaultObservableValue, isDefined, Lazy, panic, Procedure, RuntimeNotifier, tryCatch, unitValue, UUID
 } from "@opendaw/lib-std"
@@ -8,7 +9,7 @@ import {PresetMeta} from "@opendaw/studio-core"
 
 export class OpenPresetAPI {
     static readonly ApiRoot = "https://api.opendaw.studio/presets"
-    static readonly FileRoot = "https://assets.opendaw.studio/presets"
+    static readonly FileRoot = `${StockAssetRoot}/presets`
 
     @Lazy
     static get(): OpenPresetAPI {return new OpenPresetAPI()}

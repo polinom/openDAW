@@ -1,3 +1,4 @@
+import {installTrackSelection, installGroupTrackDrag} from "@/ui/timeline/tracks/audio-unit/TrackGrouping"
 import {DefaultObservableValue, Errors, Lifecycle, Option, panic, Terminator, UUID} from "@opendaw/lib-std"
 import {createElement, Group, replaceChildren} from "@opendaw/lib-jsx"
 import {Icon} from "@/ui/components/Icon.tsx"
@@ -89,6 +90,7 @@ export const AudioUnitTrackHeader = ({lifecycle, service, trackManager, trackBox
             </MenuButton>
         </div>
     )
+    installTrackSelection(lifecycle, project, element, audioUnitBoxAdapter.box)
     const audioUnitEditing = project.userEditingManager.audioUnit
     const hoverSwitch = createHoverEditSwitch(lifecycle, project, audioUnitBoxAdapter)
     // The unit's head lane doubles as the unit reorder handle: dragging its icon carries the same
@@ -99,11 +101,7 @@ export const AudioUnitTrackHeader = ({lifecycle, service, trackManager, trackBox
             dragLifecycle.terminate()
             iconContainer.draggable = false
             if (owner.getValue() && !audioUnitBoxAdapter.isOutput) {
-                dragLifecycle.own(DragAndDrop.installSource(iconContainer, () => ({
-                    uuid: UUID.toString(audioUnitBoxAdapter.uuid),
-                    type: "channelstrip",
-                    start_index: audioUnitBoxAdapter.indexField.getValue()
-                }), element))
+                dragLifecycle.own(installGroupTrackDrag(iconContainer, project, audioUnitBoxAdapter.box))
             }
         }),
         DragAndDrop.installSource(labels, () =>
@@ -136,7 +134,7 @@ export const AudioUnitTrackHeader = ({lifecycle, service, trackManager, trackBox
         DragAndDrop.installTarget(element, {
             drag: (_event: DragEvent, data: AnyDragData): boolean => {
                 if (isDeviceDrag(data)) {hoverSwitch.hover()}
-                return (data.type === "midi-effect" || data.type === "audio-effect") && data.uuids === null
+                return ((data.type === "midi-effect" && !audioUnitBoxAdapter.box.isGroup.getValue()) || data.type === "audio-effect") && data.uuids === null
             },
             drop: (_event: DragEvent, data: AnyDragData) => {
                 hoverSwitch.cancel()

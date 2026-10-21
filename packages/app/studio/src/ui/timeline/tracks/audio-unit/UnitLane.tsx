@@ -1,3 +1,4 @@
+import {installTrackSelection, installGroupTrackDrag} from "@/ui/timeline/tracks/audio-unit/TrackGrouping"
 import {Arrays, DefaultObservableValue, Lifecycle, Option, Terminator, UUID} from "@opendaw/lib-std"
 import {Events, Html, Keyboard} from "@opendaw/lib-dom"
 import {createElement, Group, replaceChildren} from "@opendaw/lib-jsx"
@@ -38,6 +39,22 @@ export const UnitLane = ({lifecycle, service, audioUnitBoxAdapter}: Construct) =
     const iconHost: HTMLElement = (
         <TrackIcon lifecycle={lifecycle} service={service} audioUnitBoxAdapter={audioUnitBoxAdapter}/>
     )
+    if (audioUnitBoxAdapter.box.isGroup.getValue()) {
+        const toggle = () => {
+            project.editing.modify(() => audioUnitBoxAdapter.box.groupCollapsed.toggle())
+            project.trackSelection.set([audioUnitBoxAdapter.box])
+        }
+        const button: HTMLButtonElement = <button className="folder-toggle" title="Collapse or expand group" onclick={toggle}/>
+        lifecycle.own(audioUnitBoxAdapter.box.groupCollapsed.catchupAndSubscribe(field => {
+            button.textContent = field.getValue() ? "▸" : "▾"
+            button.setAttribute("aria-expanded", String(!field.getValue()))
+            button.setAttribute("aria-label", field.getValue() ? "Expand group" : "Collapse group")
+        }))
+        iconHost.replaceChildren(button)
+        lifecycle.own(installGroupTrackDrag(nameLabel, project, audioUnitBoxAdapter.box))
+    }
+    iconHost.title = "Drag to move this track"
+    nameLabel.title = audioUnitBoxAdapter.box.isGroup.getValue() ? "Drag to move this group" : ""
     const header: HTMLElement = (
         <div className={Html.buildClassList(TrackHeaderClassName, "is-primary")} tabindex={-1}>
             {iconHost}
@@ -78,7 +95,8 @@ export const UnitLane = ({lifecycle, service, audioUnitBoxAdapter}: Construct) =
     element.style.setProperty("--guide-display", "none")
     const isSampleDrag = (data: AnyDragData): boolean => data.type === "sample" || data.type === "file"
     const acceptsAudio = () => audioUnitBoxAdapter.input.adapter()
-        .mapOr(adapter => adapter.accepts === "audio", false)
+        .mapOr(adapter => !audioUnitBoxAdapter.box.isGroup.getValue() && adapter.accepts === "audio", false)
+    installTrackSelection(lifecycle, project, header, audioUnitBoxAdapter.box)
     const audioUnitEditing = project.userEditingManager.audioUnit
     const clipCellsLifecycle = lifecycle.own(new Terminator())
     lifecycle.ownAll(
@@ -140,11 +158,7 @@ export const UnitLane = ({lifecycle, service, audioUnitBoxAdapter}: Construct) =
                 }))
             }
         }),
-        DragAndDrop.installSource(iconHost, () => audioUnitBoxAdapter.isOutput ? null : ({
-            uuid: UUID.toString(audioUnitBoxAdapter.uuid),
-            type: "channelstrip",
-            start_index: audioUnitBoxAdapter.indexField.getValue()
-        }), header),
+        installGroupTrackDrag(iconHost, project, audioUnitBoxAdapter.box),
         Events.subscribe(header, "pointerdown", () => {
             if (!audioUnitEditing.isEditing(audioUnitBoxAdapter.box.editing)) {
                 audioUnitEditing.edit(audioUnitBoxAdapter.box.editing)

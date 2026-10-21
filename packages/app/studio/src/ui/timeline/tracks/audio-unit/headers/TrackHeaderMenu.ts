@@ -1,3 +1,4 @@
+import {groupingMenuItems} from "../TrackGrouping"
 import {CaptureAudio, MenuItem, Project} from "@opendaw/studio-core"
 import {MonitoringDialog} from "@/ui/monitoring/MonitoringDialog"
 import {Browser} from "@opendaw/lib-dom"
@@ -27,7 +28,7 @@ export const installTrackHeaderMenu = (service: StudioService,
     const accepts: DeviceAccepts = inputAdapter.unwrap("Cannot unwrap input adapter").accepts
     const acceptMidi = audioUnitBoxAdapter.captureBox.mapOr(box => isInstanceOf(box, CaptureMidiBox), false)
     // An input that accepts neither (a Playfield slot) has no track type to offer.
-    const optTrackType = accepts === false ? Option.None : Option.wrap(DeviceAccepts.toTrackType(accepts))
+    const optTrackType = accepts === false || audioUnitBoxAdapter.box.isGroup.getValue() ? Option.None : Option.wrap(DeviceAccepts.toTrackType(accepts))
     const {project} = service
     const {audioUnitFreeze, captureDevices, editing, userEditingManager, selection} = project
     const isFrozen = audioUnitFreeze.isFrozen(audioUnitBoxAdapter)
@@ -38,6 +39,7 @@ export const installTrackHeaderMenu = (service: StudioService,
         procedure(item)
     }
     return parent.addMenuItem(
+        ...groupingMenuItems(project, audioUnitBoxAdapter.box),
         MenuItem.default({
             label: "Enabled",
             checked: optTrackBoxAdapter.mapOr(track => track.enabled.getValue(), false),
