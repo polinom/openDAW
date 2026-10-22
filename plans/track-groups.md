@@ -190,3 +190,12 @@ Core: 777 tests; Studio: 89 tests; type check and preview build passed. Browser 
 rail placement, selection, the right-side toggle and a rejected drop onto a group's own child.
 
 The full-height mixer selection bar was removed after visual review. Multi-selection keeps equal title highlights without adding lines that resemble folder boundaries.
+
+## Restored selection lines (2026-10-22)
+
+Restored the mixer left-edge selection bar at the founder's request. Timeline track selection stripes
+now paint at their own depth, alongside parent group rails, rather than underneath the first rail.
+Rails are 4px wide with a 5px depth step (one-pixel gap), including nested mixer rails. Header content,
+automation guides and drag-out hit testing share that step. Studio: 89 tests, type check and build pass.
+Browser checks verified a green nested-track stripe, equal multi-selection mixer bars, and dragging a
+track out one level followed by Undo restoring its nesting.
