@@ -31,3 +31,5 @@ This block is written and re-added by `turbo` before repository-scoped commands 
   checks the resolved subgroup bus after commit.
 
 - Group row resizing uses AudioUnitBox.userInterface field 2 (height), shared by synthetic unit lanes. Folded overview lines summarize note/audio regions in nested descendants; they are read-only. RegionLane must repaint on every visibility re-entry because hiding can clear a previously painted canvas. Whole-header channel dragging excludes controls and resize dividers.
+
+- Same-project channel duplication uses AudioUnitGrouping.duplicate: insert selected root copies as one block after the last selected sibling in each parent, keeping external parent/output references at construction. The shared shortcut/menu helper selects copies. General TransferAudioUnits transfers still detach uncopied parent membership unless preserveExternalConnections is explicitly set.

@@ -117,3 +117,13 @@ Build `782acdc5-009a-459d-a4d5-62b9a72f0153` is deployed at the same preview URL
 UnitLane group titles now use the same Surface floating text input as AudioUnitTrackHeader. Accepting a name edits the existing audio input label in one undo transaction; cancellation leaves it unchanged. The async result is ignored if the group was deleted while the editor was open. No schema change.
 
 Rename verification: Studio production build passed; browser double-click on the folded timeline group title opened the prefilled text editor, accepting updated both title and device name, Undo/Redo worked, and save/reopen retained the new name. Preview build `1624e962-e44c-46a7-9e64-4ec7767a4425`; invalidation `IBYCIF4RK1ASL32Q5VR120PBND`. Screenshot: `/tmp/track-groups-title-rename.jpg`.
+
+## Duplicate placement and multi-selection
+
+Cmd/Ctrl+D and the track menu now share `duplicateSelectedTracks`. It duplicates selected root channels (a selected descendant of a selected folder is included only once), then selects the new copies. Without an explicit selection it falls back to the active channel. Copies are a block after the last selected sibling; selections across parents create a block in each original parent. A group copy includes its full subtree, and the insertion follows the source subtree.
+
+`AudioUnitGrouping.duplicate` snapshots the tree before transfer and writes depth-first indices in the same undo transaction. Same-project transfer has an explicit `preserveExternalConnections` option: external membership and output UUIDs are mapped to their originals before boxes are constructed. Normal clipboard/export transfers retain their independent-copy behavior. This avoids construction-time pointer retargeting and preserves parent effects.
+
+Validation: core 79 files / 764 tests; adapters 30 / 363; Studio 23 / 88. Four new core regressions cover immediate placement, nested parents/routes, reversed noncontiguous selections, ancestor deduplication, different parents, save/decode, and undo/redo. The real WASM test duplicates a child during live sync, mutes its source, and confirms the copy's measured output still includes the parent effect.
+
+Browser keyboard checks passed: one nested child copy appears directly beneath its source at depth 2; selecting two siblings and duplicating produces two copies after the selection, both selected; a top-level copy appears directly after its source. Save/reopen retained every copied UUID in the same order and folder depth. Screenshot: `/tmp/track-groups-duplicate-placement.jpg`. Preview build `9d228873-19df-4716-8863-2e894f821d7b`; CloudFront invalidation `IAO7KU5JJKNYDDXMFWAB7X2X1M`.

@@ -1,4 +1,4 @@
-import {AudioBusFactory, AudioUnitGroups} from "@opendaw/studio-adapters"
+import {AudioBusFactory, AudioUnitGroups, TransferAudioUnits} from "@opendaw/studio-adapters"
 import {AudioUnitBox} from "@opendaw/studio-boxes"
 import {AudioUnitType, Colors, IconSymbol} from "@opendaw/studio-enums"
 import type {Project} from "./Project"
@@ -80,6 +80,39 @@ export class AudioUnitGrouping {
         if (parent) {top.forEach(walk)} else {top.forEach(append)}
         ordered.forEach((unit, index) => unit.index.setValue(index))
         return true
+    }
+
+    /** Duplicate each sibling selection as one block after its last source, preserving folder membership. */
+    duplicate(units: ReadonlyArray<AudioUnitBox>): AudioUnitBox[] {
+        const {rootBox, skeleton} = this.project
+        const ordered = AudioUnitGroups.ordered(rootBox)
+        const selected = new Set(AudioUnitGroups.roots(units))
+        const roots = ordered.filter(unit => selected.has(unit) && unit.type.getValue() !== AudioUnitType.Output)
+        if (roots.length === 0) {return []}
+        // Snapshot the tree before cloning: new-box pointers settle at transaction end, so do not query
+        // the new hierarchy to place its rows in the same transaction.
+        const children = new Map<AudioUnitBox | undefined, AudioUnitBox[]>([
+            [undefined, AudioUnitGroups.children(rootBox)],
+            ...ordered.map(unit => [unit, AudioUnitGroups.children(rootBox, unit)] as [AudioUnitBox, AudioUnitBox[]])
+        ])
+        const expanded = roots.flatMap(unit => AudioUnitGroups.subtree(rootBox, unit))
+        const copies = TransferAudioUnits.transfer(roots, skeleton, {preserveExternalConnections: true})
+        const mapping = new Map(expanded.map((source, index) => [source, copies[index]]))
+        expanded.forEach(source => children.set(mapping.get(source)!, children.get(source)!.map(child => mapping.get(child)!)))
+        const parents = new Set(roots.map(unit => AudioUnitGroups.parent(unit)))
+        parents.forEach(parent => {
+            const siblings = children.get(parent)!
+            const last = siblings.findLastIndex(unit => roots.includes(unit))
+            const block = roots.filter(unit => AudioUnitGroups.parent(unit) === parent).map(unit => mapping.get(unit)!)
+            siblings.splice(last + 1, 0, ...block)
+        })
+        let index = 0
+        const walk = (parent?: AudioUnitBox): void => children.get(parent)?.forEach(unit => {
+            unit.index.setValue(index++)
+            walk(unit)
+        })
+        walk()
+        return roots.map(unit => mapping.get(unit)!)
     }
 
     ungroup(group: AudioUnitBox): void {

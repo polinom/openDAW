@@ -97,6 +97,14 @@ describe("track groups on the real WASM engine", () => {
         project.editing.modify(() => project.grouping.create([unit]))
         await sync.settle()
         expect(maxDiff(processed, capture())).toBeLessThan(1e-6)
+        const [copy] = project.editing.modify(() => project.grouping.duplicate([unit])).unwrap()
+        const copiedSource = copy.input.pointerHub.incoming().map(pointer => pointer.box)
+            .find(box => box instanceof ApparatDeviceBox)!
+        new Function(ScriptCompiler.wrap({headerTag: "apparat", registryName: "apparatProcessors", functionName: "apparat"},
+            UUID.toString(copiedSource.address.uuid), 1, code))()
+        project.editing.modify(() => unit.mute.setValue(true))
+        await sync.settle()
+        expect(maxDiff(processed, capture())).toBeLessThan(1e-6)
         project.terminate()
         sync.close()
     }, 30_000)

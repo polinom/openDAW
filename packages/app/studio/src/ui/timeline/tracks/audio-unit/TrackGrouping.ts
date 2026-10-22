@@ -17,6 +17,17 @@ export const groupSelectedTracks = (project: Project): void => {
     project.userEditingManager.audioUnit.edit(group.editing)
 }
 
+export const duplicateSelectedTracks = (project: Project): void => {
+    const selected = project.trackSelection.selected
+    const active = project.userEditingManager.audioUnit.get().map(vertex =>
+        project.boxAdapters.adapterFor(vertex.box, Devices.isHost).audioUnitBoxAdapter().box).unwrapOrUndefined()
+    const units = selected.length > 0 ? selected : !project.trackSelection.hasExplicitSelection && active ? [active] : []
+    const copies = project.editing.modify(() => project.grouping.duplicate(units)).unwrapOrElse([])
+    if (copies.length === 0) {return}
+    project.trackSelection.set(copies)
+    project.userEditingManager.audioUnit.edit(copies[0].editing)
+}
+
 export const groupingMenuItems = (project: Project, unit: AudioUnitBox): MenuItem[] => {
     if (!project.trackSelection.has(unit)) {project.trackSelection.set([unit])}
     return [
