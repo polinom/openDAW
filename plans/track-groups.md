@@ -164,3 +164,9 @@ confirmed moving a newly created FX bus preserves its output and the original se
 passed 772 tests; the final focused suite passed 21, with 2 real WASM tests. With rails included, the same
 80-folder fixture measured 0.44s for duplicate and 0.31s for delete to the second animation frame. Timing
 code was removed before this release.
+
+
+Final edge review: `9c94a28a0` on the official PR scopes Move Out to the chosen parent, appends paste
+before Output without an active channel, and repaints folded summaries on lane index edits. Core 774,
+Studio 89 and real WASM 2 tests passed; adapters remain at 363 passing tests. Root category order remains
+a creation default: explicit placement/duplicate blocks retain user order, with Output as the hard boundary.
