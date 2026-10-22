@@ -93,19 +93,18 @@ export const AudioUnitTrackHeader = ({lifecycle, service, trackManager, trackBox
     installTrackSelection(lifecycle, project, element, audioUnitBoxAdapter.box)
     const audioUnitEditing = project.userEditingManager.audioUnit
     const hoverSwitch = createHoverEditSwitch(lifecycle, project, audioUnitBoxAdapter)
-    // The unit's head lane doubles as the unit reorder handle: dragging its icon carries the same
-    // payload as a mixer channel strip, so timeline and mixer drops interoperate.
+    // The whole head header moves the channel; controls and resize handles keep their own gestures.
     const dragLifecycle = lifecycle.own(new Terminator())
     lifecycle.ownAll(
         unitHead.catchupAndSubscribe(owner => {
             dragLifecycle.terminate()
             iconContainer.draggable = false
             if (owner.getValue() && !audioUnitBoxAdapter.isOutput) {
-                dragLifecycle.own(installGroupTrackDrag(iconContainer, project, audioUnitBoxAdapter.box))
+                dragLifecycle.own(installGroupTrackDrag(element, project, audioUnitBoxAdapter.box))
             }
         }),
         DragAndDrop.installSource(labels, () =>
-            trackManager.groupMembers(trackBoxAdapter.uuid).length < 2
+            unitHead.getValue() || trackManager.groupMembers(trackBoxAdapter.uuid).length < 2
                 ? null // a single-lane group has nowhere to go: veto, no ghost
                 : {uuid: UUID.toString(trackBoxAdapter.uuid), type: "track"}, element),
         project.timelineFocus.track.catchupAndSubscribe(optTrack =>

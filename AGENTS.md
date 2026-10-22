@@ -29,3 +29,5 @@ This block is written and re-added by `turbo` before repository-scoped commands 
   Retargeting a new unit in its creation transaction can leave its resolved output adapter stale even when its
   raw serialized pointer address is correct (construction pointer updates are deferred). The grouping regression
   checks the resolved subgroup bus after commit.
+
+- Group row resizing uses AudioUnitBox.userInterface field 2 (height), shared by synthetic unit lanes. Folded overview lines summarize note/audio regions in nested descendants; they are read-only. RegionLane must repaint on every visibility re-entry because hiding can clear a previously painted canvas. Whole-header channel dragging excludes controls and resize dividers.

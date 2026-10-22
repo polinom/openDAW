@@ -131,12 +131,16 @@ describe("track folders", () => {
     it("collapse survives project serialization and never changes audio routes", async () => {
         const {project, units: [a, b]} = await setup()
         const group = project.editing.modify(() => project.grouping.create([a, b])!).unwrap()
-        project.editing.modify(() => group.groupCollapsed.setValue(true))
+        project.editing.modify(() => {
+            group.groupCollapsed.setValue(true)
+            group.userInterface.height.setValue(132)
+        })
         expect(AudioUnitGroups.hidden(a)).toBe(true)
         const loaded = ProjectSkeleton.decode(ProjectSkeleton.encode(project.boxGraph))
         const loadedGroup = loaded.boxGraph.findBox(group.address.uuid).unwrap() as typeof group
         const loadedA = loaded.boxGraph.findBox(a.address.uuid).unwrap() as typeof a
         expect(loadedGroup.groupCollapsed.getValue()).toBe(true)
+        expect(loadedGroup.userInterface.height.getValue()).toBe(132)
         expect(AudioUnitGroups.parent(loadedA)).toBe(loadedGroup)
         expect(loadedA.output.targetVertex.unwrap().box).toBe(AudioUnitGroups.bus(loadedGroup))
         project.terminate()

@@ -98,3 +98,16 @@ subgroup through live sync while a parent effect is active and confirms that eff
 - Live build metadata matches; versioned engine returns HTTP 200 with application/wasm and immutable caching.
 - Final hosted browser reopened the saved nested folders and Stereo Tool effect, then created a new subgroup while the engine was running. Mixer immediately showed the new subgroup routed to Synths and its child routed to Group. Saved with Cmd+S.
 - Screenshot: `/tmp/track-groups-preview.jpg`. Browser checks establish UI and storage behavior; real WASM tests establish measured synthetic audio routing. Hardware audition remains a user check.
+
+## Founder feedback: fold redraw, overview, height, and selection
+
+- RegionLane now repaints each time it becomes visible. Previously its `updated` flag survived hiding, while a hidden canvas resize cleared its pixels; unfolding could skip the repaint until selection changed. A mocked visibility regression reproduces that sequence.
+- Folded groups show a read-only arrangement overview: thin lines retain each child region's timing and hue, with one stripe per content lane. Nested descendants are included; automation is omitted. Layout clips to the visible range and packs many lanes inside the row. Graph/range subscriptions repaint changes and undo without idle polling.
+- Synthetic unit lanes use the same resize gesture as content tracks. AudioUnitBox.userInterface field 2 stores their pixel height (0 means default), including group rows. Generated boxes and the Rust/WASM registry were rebuilt together.
+- The whole primary track header now moves channels. Buttons, knobs, text inputs, automation collapse, and the resize divider keep their existing gestures. Non-head lane labels keep the existing internal-lane drag.
+- Selected audio channels share the same subtle region background and label highlight. Modulator focus styling is retained.
+- Checks: full build 28/28; Studio 23 files / 88 tests; core grouping 9 tests including saved height; real WASM grouping 2 tests. Browser directly verified colored folded lines from nested and direct children, immediate unfold repaint, group resize, identical selected backgrounds, and multi-track drag from the header text area.
+
+### Updated feedback preview
+
+Build `782acdc5-009a-459d-a4d5-62b9a72f0153` is deployed at the same preview URL and S3 prefix. CloudFront invalidation: `I71FR5K4N0688U31Q28GK83CI1`. The hosted browser loads the exact new script, opens the saved test project with its running engine, and exposes three group overview canvases and three synthetic-row resize handles. HTTP checks confirm `/create`, build metadata, and the versioned engine, with the required MIME/cache/isolation headers. Local save/reopen retained the 117px folded row and both colored clip lines. Screenshot: `/tmp/track-groups-folded-overview.jpg`.

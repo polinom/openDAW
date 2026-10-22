@@ -1,3 +1,6 @@
+import {TracksManager} from "./TracksManager"
+import {installTrackResize} from "./TrackResize"
+import {GroupOverview} from "./GroupOverview"
 import {installTrackSelection, installGroupTrackDrag} from "@/ui/timeline/tracks/audio-unit/TrackGrouping"
 import {Arrays, DefaultObservableValue, Lifecycle, Option, Terminator, UUID} from "@opendaw/lib-std"
 import {Events, Html, Keyboard} from "@opendaw/lib-dom"
@@ -27,13 +30,14 @@ import {TrackIcon} from "@/ui/timeline/tracks/audio-unit/headers/TrackIcon.tsx"
 type Construct = {
     lifecycle: Lifecycle
     service: StudioService
+    trackManager: TracksManager
     audioUnitBoxAdapter: AudioUnitBoxAdapter
 }
 
 // The synthetic lane of a unit WITHOUT notes/audio tracks (an aux, a group, an instrument driven by its own
 // note generator): the unit's face in the timeline, rendered like the former TrackType.Undefined placeholder
 // (header + deactive body), carrying the unit head duties (channel controls, menu, editing focus, unit drag).
-export const UnitLane = ({lifecycle, service, audioUnitBoxAdapter}: Construct) => {
+export const UnitLane = ({lifecycle, service, trackManager, audioUnitBoxAdapter}: Construct) => {
     const {project} = service
     const nameLabel: HTMLElement = <h5 className="device-name" style={{color: Colors.dark.toString()}}/>
     const iconHost: HTMLElement = (
@@ -51,7 +55,6 @@ export const UnitLane = ({lifecycle, service, audioUnitBoxAdapter}: Construct) =
             button.setAttribute("aria-label", field.getValue() ? "Expand group" : "Collapse group")
         }))
         iconHost.replaceChildren(button)
-        lifecycle.own(installGroupTrackDrag(nameLabel, project, audioUnitBoxAdapter.box))
     }
     iconHost.title = "Drag to move this track"
     nameLabel.title = audioUnitBoxAdapter.box.isGroup.getValue() ? "Drag to move this group" : ""
@@ -83,7 +86,9 @@ export const UnitLane = ({lifecycle, service, audioUnitBoxAdapter}: Construct) =
             </MenuButton>
         </div>
     )
-    const regionArea: HTMLElement = <div className={Html.buildClassList(RegionLaneClassName, "deactive")}/>
+    const regionArea: HTMLElement = audioUnitBoxAdapter.box.isGroup.getValue()
+        ? GroupOverview({lifecycle, service, unit: audioUnitBoxAdapter.box})
+        : <div className={Html.buildClassList(RegionLaneClassName, "deactive")}/>
     const clipArea: HTMLElement = <div className={Html.buildClassList(ClipLaneClassName, "deactive")}/>
     const element: HTMLElement = (
         <div className={Html.buildClassList(TrackClassName, "unit-lane")} tabindex={-1}>
@@ -93,6 +98,7 @@ export const UnitLane = ({lifecycle, service, audioUnitBoxAdapter}: Construct) =
         </div>
     )
     element.style.setProperty("--guide-display", "none")
+    installTrackResize(lifecycle, service, trackManager, audioUnitBoxAdapter.box.userInterface.height, element)
     const isSampleDrag = (data: AnyDragData): boolean => data.type === "sample" || data.type === "file"
     const acceptsAudio = () => audioUnitBoxAdapter.input.adapter()
         .mapOr(adapter => !audioUnitBoxAdapter.box.isGroup.getValue() && adapter.accepts === "audio", false)
@@ -158,7 +164,7 @@ export const UnitLane = ({lifecycle, service, audioUnitBoxAdapter}: Construct) =
                 }))
             }
         }),
-        installGroupTrackDrag(iconHost, project, audioUnitBoxAdapter.box),
+        installGroupTrackDrag(header, project, audioUnitBoxAdapter.box),
         Events.subscribe(header, "pointerdown", () => {
             if (!audioUnitEditing.isEditing(audioUnitBoxAdapter.box.editing)) {
                 audioUnitEditing.edit(audioUnitBoxAdapter.box.editing)

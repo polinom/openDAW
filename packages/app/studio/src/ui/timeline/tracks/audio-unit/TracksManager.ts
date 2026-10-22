@@ -229,6 +229,7 @@ export class TracksManager implements Terminable {
                             const laneElement = UnitLane({
                                 lifecycle: syntheticLifecycle,
                                 service: this.#service,
+                                trackManager: this,
                                 audioUnitBoxAdapter
                             })
                             syntheticLifecycle.own({terminate: () => laneElement.remove()})

@@ -118,7 +118,7 @@ export const installGroupTrackDrag = (handle: HTMLElement, project: Project, uni
     handle.draggable = false
     handle.title = "Drag to move track; drop on a group or between tracks. Drag left to move out."
     return Dragging.attach(handle, start => {
-        if (start.target instanceof Element && start.target.closest("button")) {return Option.None}
+        if (start.target instanceof Element && start.target.closest("button,input,select,textarea,a,[contenteditable],.track-resizer,[data-track-controls],svg.collapse-automation")) {return Option.None}
         if (!unit.isAttached() || unit.type.getValue() === "output") {return Option.None}
         const units = project.trackSelection.has(unit) ? [...project.trackSelection.selected] : [unit]
         let moved = false
