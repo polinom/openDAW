@@ -179,3 +179,13 @@ per category. Exact UUID-order regressions cover moves, nested folders, duplicat
 Selection highlights fall back to the active editor after the explicit selection becomes empty in
 the mixer, timeline and rails. Generic canvas re-entry repaint is submitted independently as PR #502;
 grouping retains the required patch until it reaches upstream. The architecture refactor is deferred.
+
+## Mixer/header polish (2026-10-22)
+
+The mixer reserves a top row for continuous nested group rails. Selected channels use a separate
+left-edge bar and title fill; folder toggles sit to the icon's right. Rails use fixed solid selected
+and unselected colors so gaps and header backgrounds do not change their apparent opacity. Timeline
+header backgrounds fill the indentation area with square edges; the content keeps its depth padding.
+Boundary drop feedback checks sibling anchors and category sections, in addition to parent/cycle checks.
+Core: 777 tests; Studio: 89 tests; type check and preview build passed. Browser checks cover nested
+rail placement, selection, the right-side toggle and a rejected drop onto a group's own child.
