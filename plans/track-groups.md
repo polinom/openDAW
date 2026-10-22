@@ -33,7 +33,7 @@ nodes during a gesture. Selection is local project UI state, separate from activ
 
 `AudioUnitGrouping` performs all membership/routing/index mutations inside one caller-owned undo transaction.
 Groups start at 0 dB. Entering a group routes the moved root to its bus; leaving routes it to its new parent
-or the primary output bus. Existing custom output routing is replaced when membership changes. Children of
+or the primary output bus. Custom output routing is preserved; only routes following the previous parent or primary bus change with membership. Children of
 moved groups retain their internal routes. Moving a parent and a selected descendant moves the subtree once.
 Descendant containment and primary-route/aux-send feedback into a moved source are rejected.
 
@@ -140,3 +140,18 @@ Shared-menu validation: Studio production build and all 88 tests passed. Browser
 Delete now removes the whole nested subtree; the explicit Ungroup (Keep Tracks) action still promotes children. Core: 766 tests; real WASM: 2 tests passed, including deletion during live sync. Tests cover collapsed groups, nested content/effect removal, outside-track preservation, and complete Undo/Redo restoration. The same fix is included in upstream PR #496.
 
 Browser verification: right-click Delete and keyboard Backspace both removed the outer folder and all descendants, leaving only the three outside tracks. Undo restored the full group; Ungroup removed only the folder and retained its nested group and children. The original test project was restored and saved. Screenshot: `/tmp/track-groups-delete-subtree.jpg`. Preview build: `49cb1202-bed5-417c-b3c7-ae7d43f22b65`.
+
+
+## Mixer and performance review follow-up
+
+Mixer folders now have fold/unfold buttons and retain the normal channel controls. The shared collapse
+state hides children in both views. Group gain, mute/solo and audio-effect insertion were checked in the
+browser. Source and review changes are in official PR #496 at `abc8ff9fe`; the independent engine-cache
+change is separate PR #499. This preview retains its versioned engine URLs and factory-asset proxy.
+
+Hierarchy ordering uses parent buckets and child hubs. Timeline layout updates coalesce at transaction end,
+and folded summaries ignore mixer/effect parameter edits. An 80-folder, 240-channel synthetic browser test
+measured duplicate-to-second-frame latency of 27.15s before and 0.47s after; single-track delete measured
+0.69s before and 0.33s after. These instrumented single-run results are not a timing guarantee.
+
+Core 770, adapters 363, Studio 89 and real WASM 2 tests passed after the review fixes.
