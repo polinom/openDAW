@@ -33,6 +33,7 @@ export const AudioUnitTrackHeader = ({lifecycle, service, trackManager, trackBox
     const nameLabel: HTMLElement = <h5 className="device-name" style={{color: Colors.dark.toString()}}/>
     const controlLabel: HTMLElement = <h5 className="control-label" style={{color: Colors.shadow.toString()}}/>
     const {project} = service
+    const populateMenu = installTrackHeaderMenu(service, audioUnitBoxAdapter, Option.wrap(trackBoxAdapter))
     lifecycle.own(
         trackBoxAdapter.catchupAndSubscribePath(option => option.match({
             none: () => {
@@ -81,16 +82,14 @@ export const AudioUnitTrackHeader = ({lifecycle, service, trackManager, trackBox
                         }
                     })
             }}/>
-            <MenuButton root={MenuItem.root()
-                .setRuntimeChildrenProcedure(installTrackHeaderMenu(service, audioUnitBoxAdapter,
-                    Option.wrap(trackBoxAdapter)))}
+            <MenuButton root={MenuItem.root().setRuntimeChildrenProcedure(populateMenu)}
                         style={{minWidth: "0", justifySelf: "end"}}
                         appearance={{color: Colors.shadow, activeColor: Colors.cream}}>
                 <Icon symbol={IconSymbol.Menu} style={{fontSize: "0.75em"}}/>
             </MenuButton>
         </div>
     )
-    installTrackSelection(lifecycle, project, element, audioUnitBoxAdapter.box)
+    installTrackSelection(lifecycle, project, element, audioUnitBoxAdapter.box, populateMenu)
     const audioUnitEditing = project.userEditingManager.audioUnit
     const hoverSwitch = createHoverEditSwitch(lifecycle, project, audioUnitBoxAdapter)
     // The whole head header moves the channel; controls and resize handles keep their own gestures.

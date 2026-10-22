@@ -41,6 +41,7 @@ type Construct = {
 // (header + deactive body), carrying the unit head duties (channel controls, menu, editing focus, unit drag).
 export const UnitLane = ({lifecycle, service, trackManager, audioUnitBoxAdapter}: Construct) => {
     const {project} = service
+    const populateMenu = installTrackHeaderMenu(service, audioUnitBoxAdapter, Option.None)
     const nameLabel: HTMLElement = <h5 className="device-name" style={{color: Colors.dark.toString()}}/>
     const iconHost: HTMLElement = (
         <TrackIcon lifecycle={lifecycle} service={service} audioUnitBoxAdapter={audioUnitBoxAdapter}/>
@@ -89,8 +90,7 @@ export const UnitLane = ({lifecycle, service, trackManager, audioUnitBoxAdapter}
             }}/>
             {/* The same menu the track header mounts, minus the track-scoped entries (#309 follow-up): this lane
                 is the unit's only face while it has no notes/audio track, so it must offer the unit's actions. */}
-            <MenuButton root={MenuItem.root().setRuntimeChildrenProcedure(
-                installTrackHeaderMenu(service, audioUnitBoxAdapter, Option.None))}
+            <MenuButton root={MenuItem.root().setRuntimeChildrenProcedure(populateMenu)}
                         style={{minWidth: "0", justifySelf: "end"}}
                         appearance={{color: Colors.shadow, activeColor: Colors.cream}}>
                 <Icon symbol={IconSymbol.Menu} style={{fontSize: "0.75em"}}/>
@@ -113,7 +113,7 @@ export const UnitLane = ({lifecycle, service, trackManager, audioUnitBoxAdapter}
     const isSampleDrag = (data: AnyDragData): boolean => data.type === "sample" || data.type === "file"
     const acceptsAudio = () => audioUnitBoxAdapter.input.adapter()
         .mapOr(adapter => !audioUnitBoxAdapter.box.isGroup.getValue() && adapter.accepts === "audio", false)
-    installTrackSelection(lifecycle, project, header, audioUnitBoxAdapter.box)
+    installTrackSelection(lifecycle, project, header, audioUnitBoxAdapter.box, populateMenu)
     const audioUnitEditing = project.userEditingManager.audioUnit
     const clipCellsLifecycle = lifecycle.own(new Terminator())
     lifecycle.ownAll(

@@ -3,7 +3,7 @@ import {AudioUnitGroups, Devices} from "@opendaw/studio-adapters"
 import {AudioUnitBox} from "@opendaw/studio-boxes"
 import {ContextMenu, MenuItem, Project} from "@opendaw/studio-core"
 import {Browser, Dragging, Events} from "@opendaw/lib-dom"
-import {Lifecycle, Option, UUID, Terminable} from "@opendaw/lib-std"
+import {Lifecycle, Option, Procedure, UUID, Terminable} from "@opendaw/lib-std"
 import {AnyDragData} from "@/ui/AnyDragData"
 
 export const groupSelectedTracks = (project: Project): void => {
@@ -46,7 +46,8 @@ export const groupingMenuItems = (project: Project, unit: AudioUnitBox): MenuIte
     ]
 }
 
-export const installTrackSelection = (lifecycle: Lifecycle, project: Project, header: HTMLElement, unit: AudioUnitBox): void => {
+export const installTrackSelection = (lifecycle: Lifecycle, project: Project, header: HTMLElement, unit: AudioUnitBox,
+                                      populateMenu?: Procedure<MenuItem>): void => {
     let pendingSingle = false, dragged = false
     lifecycle.ownAll(
         Events.subscribe(header, "pointerdown", (event: PointerEvent) => {
@@ -66,7 +67,15 @@ export const installTrackSelection = (lifecycle: Lifecycle, project: Project, he
             if (pendingSingle && !dragged && event.button === 0) {project.trackSelection.click(unit, event)}
             pendingSingle = false
         }),
-        ContextMenu.subscribe(header, collector => collector.addItems(...groupingMenuItems(project, unit)))
+        ContextMenu.subscribe(header, collector => {
+            if (populateMenu) {
+                const root = MenuItem.root()
+                populateMenu(root)
+                collector.addItems(...root.collectChildren())
+            } else {
+                collector.addItems(...groupingMenuItems(project, unit))
+            }
+        })
     )
 }
 

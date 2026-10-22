@@ -127,3 +127,9 @@ Cmd/Ctrl+D and the track menu now share `duplicateSelectedTracks`. It duplicates
 Validation: core 79 files / 764 tests; adapters 30 / 363; Studio 23 / 88. Four new core regressions cover immediate placement, nested parents/routes, reversed noncontiguous selections, ancestor deduplication, different parents, save/decode, and undo/redo. The real WASM test duplicates a child during live sync, mutes its source, and confirms the copy's measured output still includes the parent effect.
 
 Browser keyboard checks passed: one nested child copy appears directly beneath its source at depth 2; selecting two siblings and duplicating produces two copies after the selection, both selected; a top-level copy appears directly after its source. Save/reopen retained every copied UUID in the same order and folder depth. Screenshot: `/tmp/track-groups-duplicate-placement.jpg`. Preview build `9d228873-19df-4716-8863-2e894f821d7b`; CloudFront invalidation `IAO7KU5JJKNYDDXMFWAB7X2X1M`.
+
+## One menu for both header gestures
+
+Timeline content-track headers and synthetic/group headers now pass their existing TrackHeaderMenu builder to installTrackSelection. Right-click builds a fresh menu with that same procedure; the three-dot button uses it at opening time. This preserves the same item order, enabled/hidden state, dynamic names and selection-aware actions. Mixer retains its existing channel-specific context actions.
+
+Shared-menu validation: Studio production build and all 88 tests passed. Browser compared the complete visible item lists for each gesture: group menus matched (6 items), and regular track menus matched (12 items). Screenshot: `/tmp/track-groups-shared-menu.jpg`. Preview build `894c67ac-024e-4b64-a066-b169f03cb39e`; invalidation `IDP6W5ANX27KPJEJFDI9HKQEFG`.
