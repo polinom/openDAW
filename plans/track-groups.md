@@ -19,7 +19,7 @@ with saved folder membership. It accepts audio effects, but no MIDI effects or i
 - The menu also has **Move Out of Group** and **Ungroup (Keep Tracks)**.
 - Duplicate AudioUnit duplicates the entire group subtree. Clipboard Copy/Cut is disabled for group roots
   because the existing clipboard format does not preserve an entire folder. Normal channel copying remains available.
-- Rename a group through its device editor name, using the existing double-click name editor.
+- Double-click a group title in the timeline to rename it with the same floating name editor as a track. The device editor and mixer names stay in sync; rename is undoable and saved with the project.
 
 ## Data and routing
 
@@ -111,3 +111,9 @@ subgroup through live sync while a parent effect is active and confirms that eff
 ### Updated feedback preview
 
 Build `782acdc5-009a-459d-a4d5-62b9a72f0153` is deployed at the same preview URL and S3 prefix. CloudFront invalidation: `I71FR5K4N0688U31Q28GK83CI1`. The hosted browser loads the exact new script, opens the saved test project with its running engine, and exposes three group overview canvases and three synthetic-row resize handles. HTTP checks confirm `/create`, build metadata, and the versioned engine, with the required MIME/cache/isolation headers. Local save/reopen retained the 117px folded row and both colored clip lines. Screenshot: `/tmp/track-groups-folded-overview.jpg`.
+
+## Direct group-title rename
+
+UnitLane group titles now use the same Surface floating text input as AudioUnitTrackHeader. Accepting a name edits the existing audio input label in one undo transaction; cancellation leaves it unchanged. The async result is ignored if the group was deleted while the editor was open. No schema change.
+
+Rename verification: Studio production build passed; browser double-click on the folded timeline group title opened the prefilled text editor, accepting updated both title and device name, Undo/Redo worked, and save/reopen retained the new name. Preview build `1624e962-e44c-46a7-9e64-4ec7767a4425`; invalidation `IBYCIF4RK1ASL32Q5VR120PBND`. Screenshot: `/tmp/track-groups-title-rename.jpg`.

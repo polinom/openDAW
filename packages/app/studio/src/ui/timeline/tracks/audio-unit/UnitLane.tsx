@@ -1,8 +1,10 @@
+import {Surface} from "@/ui/surface/Surface"
+import {Promises} from "@opendaw/lib-runtime"
 import {TracksManager} from "./TracksManager"
 import {installTrackResize} from "./TrackResize"
 import {GroupOverview} from "./GroupOverview"
 import {installTrackSelection, installGroupTrackDrag} from "@/ui/timeline/tracks/audio-unit/TrackGrouping"
-import {Arrays, DefaultObservableValue, Lifecycle, Option, Terminator, UUID} from "@opendaw/lib-std"
+import {Arrays, DefaultObservableValue, Errors, Lifecycle, Option, panic, Terminator, UUID} from "@opendaw/lib-std"
 import {Events, Html, Keyboard} from "@opendaw/lib-dom"
 import {createElement, Group, replaceChildren} from "@opendaw/lib-jsx"
 import {StudioService} from "@/service/StudioService.ts"
@@ -55,9 +57,18 @@ export const UnitLane = ({lifecycle, service, trackManager, audioUnitBoxAdapter}
             button.setAttribute("aria-label", field.getValue() ? "Expand group" : "Collapse group")
         }))
         iconHost.replaceChildren(button)
+        lifecycle.own(Events.subscribeDblDwn(nameLabel, async event => {
+            const {status, error, value} = await Promises.tryCatch(Surface.get(nameLabel)
+                .requestFloatingTextInput(event, audioUnitBoxAdapter.input.label.unwrapOrElse("")))
+            if (status === "rejected") {
+                if (!Errors.isAbort(error)) {return panic(error)}
+            } else if (audioUnitBoxAdapter.box.isAttached()) {
+                project.editing.modify(() => audioUnitBoxAdapter.input.label = value)
+            }
+        }))
     }
     iconHost.title = "Drag to move this track"
-    nameLabel.title = audioUnitBoxAdapter.box.isGroup.getValue() ? "Drag to move this group" : ""
+    nameLabel.title = audioUnitBoxAdapter.box.isGroup.getValue() ? "Double-click to rename; drag to move this group" : ""
     const header: HTMLElement = (
         <div className={Html.buildClassList(TrackHeaderClassName, "is-primary")} tabindex={-1}>
             {iconHost}
