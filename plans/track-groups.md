@@ -155,3 +155,12 @@ measured duplicate-to-second-frame latency of 27.15s before and 0.47s after; sin
 0.69s before and 0.33s after. These instrumented single-run results are not a timing guarantee.
 
 Core 770, adapters 363, Studio 89 and real WASM 2 tests passed after the review fixes.
+
+
+Maintainer UI examples are fixed in `7c656663e` (official PR #496 at `288ceb3c1`). Continuous clickable
+rails span nested folders across gaps in the flat timeline and mixer. Single-lane stubs and mixer pointer
+outlines are removed. Default new FX buses follow groups/instruments before Output, and browser testing
+confirmed moving a newly created FX bus preserves its output and the original send. The full core suite
+passed 772 tests; the final focused suite passed 21, with 2 real WASM tests. With rails included, the same
+80-folder fixture measured 0.44s for duplicate and 0.31s for delete to the second animation frame. Timing
+code was removed before this release.
