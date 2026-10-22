@@ -35,3 +35,5 @@ This block is written and re-added by `turbo` before repository-scoped commands 
 - Same-project channel duplication uses AudioUnitGrouping.duplicate: insert selected root copies as one block after the last selected sibling in each parent, keeping external parent/output references at construction. The shared shortcut/menu helper selects copies. General TransferAudioUnits transfers still detach uncopied parent membership unless preserveExternalConnections is explicitly set.
 
 - Timeline right-click and three-dot menus share each header's TrackHeaderMenu procedure through installTrackSelection. Keep this single builder so available items and selection-aware actions stay consistent; mixer context entries are separate.
+
+- Delete group removes the full nested subtree, including content and effects, through AudioUnitGrouping.deleteGroup. Ungroup (Keep Tracks) is the distinct child-promoting action. Both operate in one caller-owned undo transaction.

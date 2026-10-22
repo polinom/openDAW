@@ -37,9 +37,10 @@ or the primary output bus. Existing custom output routing is replaced when membe
 moved groups retain their internal routes. Moving a parent and a selected descendant moves the subtree once.
 Descendant containment and primary-route/aux-send feedback into a moved source are rejected.
 
-Ungroup and deleting a group preserve its children, promote them to its parent, and remove the group's
-bus/effects. This can change the sound when the group had effects, gain, mute, or automation. Group effects
-and levels are not copied onto children. Collapse changes only display state and does not alter audio routing.
+Ungroup preserves children, promotes them to the parent, and removes the group's bus/effects. This can
+change the sound when the group had effects, gain, mute, or automation; group processing is not copied onto
+children. Delete removes the whole group subtree, including nested tracks and content, in one undo transaction.
+Collapse changes only display state and does not alter audio routing.
 
 Timeline channel moves use the shared captured-pointer `Dragging` implementation, including Escape and
 interruption cancellation. Browser device/lane drags retain their existing native drag path. Mixer channel
@@ -133,3 +134,9 @@ Browser keyboard checks passed: one nested child copy appears directly beneath i
 Timeline content-track headers and synthetic/group headers now pass their existing TrackHeaderMenu builder to installTrackSelection. Right-click builds a fresh menu with that same procedure; the three-dot button uses it at opening time. This preserves the same item order, enabled/hidden state, dynamic names and selection-aware actions. Mixer retains its existing channel-specific context actions.
 
 Shared-menu validation: Studio production build and all 88 tests passed. Browser compared the complete visible item lists for each gesture: group menus matched (6 items), and regular track menus matched (12 items). Screenshot: `/tmp/track-groups-shared-menu.jpg`. Preview build `894c67ac-024e-4b64-a066-b169f03cb39e`; invalidation `IDP6W5ANX27KPJEJFDI9HKQEFG`.
+
+## Delete group versus ungroup
+
+Delete now removes the whole nested subtree; the explicit Ungroup (Keep Tracks) action still promotes children. Core: 766 tests; real WASM: 2 tests passed, including deletion during live sync. Tests cover collapsed groups, nested content/effect removal, outside-track preservation, and complete Undo/Redo restoration. The same fix is included in upstream PR #496.
+
+Browser verification: right-click Delete and keyboard Backspace both removed the outer folder and all descendants, leaving only the three outside tracks. Undo restored the full group; Ungroup removed only the folder and retained its nested group and children. The original test project was restored and saved. Screenshot: `/tmp/track-groups-delete-subtree.jpg`. Preview build: `49cb1202-bed5-417c-b3c7-ae7d43f22b65`.
