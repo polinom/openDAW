@@ -170,3 +170,12 @@ Final edge review: `9c94a28a0` on the official PR scopes Move Out to the chosen 
 before Output without an active channel, and repaints folded summaries on lane index edits. Core 774,
 Studio 89 and real WASM 2 tests passed; adapters remain at 363 passing tests. Root category order remains
 a creation default: explicit placement/duplicate blocks retain user order, with Output as the hard boundary.
+
+## Review completion (2026-10-22)
+
+Channel lists now enforce group buses, instruments, FX buses, then Output at every folder level.
+Moves retain their requested position within a category; mixed-category duplication inserts one block
+per category. Exact UUID-order regressions cover moves, nested folders, duplicate and undo/redo.
+Selection highlights fall back to the active editor after the explicit selection becomes empty in
+the mixer, timeline and rails. Generic canvas re-entry repaint is submitted independently as PR #502;
+grouping retains the required patch until it reaches upstream. The architecture refactor is deferred.
