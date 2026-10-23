@@ -21,11 +21,11 @@ export namespace AudioFadeHandles {
     }
 
     export const render = (context: CanvasRenderingContext2D, range: TimelineRange,
-                           fading: FadingEnvelope.Config, start: number, end: number): void => {
+                           fading: FadingEnvelope.Config, start: number, end: number, color: string): void => {
         const {inX, outX} = positions(range, fading, start, end)
         const dpr = devicePixelRatio
         context.save()
-        context.fillStyle = "#ffffff"
+        context.fillStyle = color
         context.strokeStyle = "#15191d"
         context.lineWidth = 1.5 * dpr
         for (const x of [inX, outX]) {

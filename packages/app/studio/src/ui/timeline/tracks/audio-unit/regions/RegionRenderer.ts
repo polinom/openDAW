@@ -28,7 +28,7 @@ export namespace RegionRenderer {
     export const render = (context: CanvasRenderingContext2D,
                            tracks: TracksManager,
                            range: TimelineRange,
-                           index: int): void => {
+                           index: int, hoverUnit: number | null = null): void => {
         const canvas = context.canvas
         const {width, height} = canvas
         const {fontFamily} = getComputedStyle(canvas)
@@ -121,7 +121,7 @@ export namespace RegionRenderer {
                                 loops.forEach(pass => AudioRenderer.render(context, range, file, tempoMap,
                                     region.observableOptPlayMode, region.waveformOffset.getValue(),
                                     region.gain.getValue(), bound, contentColor, pass, true, audioRenderStrategy))
-                                AudioFadingRenderer.render(context, range, region.fading, bound, position, complete, labelBackground)
+                                AudioFadingRenderer.render(context, range, region.fading, bound, position, complete, labelBackground, false)
                             }),
                         visitValueRegionBoxAdapter: (region: ValueRegionBoxAdapter): void => {
                             const top = bound.top * dpr
@@ -139,8 +139,9 @@ export namespace RegionRenderer {
                     })
                     context.restore()
                 }
-                if (isInstanceOf(region, AudioRegionBoxAdapter)) {
-                    AudioFadeHandles.render(context, range, region.fading, position, complete)
+                if (isInstanceOf(region, AudioRegionBoxAdapter)
+                    && hoverUnit !== null && hoverUnit >= position && hoverUnit < complete) {
+                    AudioFadeHandles.render(context, range, region.fading, position, complete, contentColor)
                 }
                 if (selected) {
                     context.fillStyle = labelBackground

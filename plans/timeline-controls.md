@@ -55,3 +55,8 @@ Audio fade handles use bright 8 px circles with a dark outline and a 16 px diame
 Validation: Studio type checking, 117 tests across 28 files, and production build pass. Real-project regressions cover same-track duplicate placement, repeated duplicate selection, multiple adjacent clips, and Undo/Redo. Fade geometry covers zero fades, overlapping fades and narrow clips.
 
 Hosted follow-up: deployment `87c11e63-8b43-4e29-9ebb-f4b95e5c698d`, build `39bebd0b-846f-4f48-963b-c159644169e8`, source `d49a9813cd974421509269c1c403d22bc0922e40`. Cmd+D in the hosted arrangement created an adjacent copy on Cubed without adding a track. Saved the named verification project, reloaded the library, and reopened it; both adjacent clips persisted. Live audio fade dragging remains unverified because the automated audio file picker was unavailable. Geometry tests and the build passed; these do not establish physical pointer feel.
+
+
+## Fade handle hover styling
+
+Fade handles now use the clip's content color with the existing dark outline. Only the hovered clip shows them; the large grab radius is unchanged. RegionsArea publishes pointer coordinates through TracksManager because the lane canvases sit below the shared input overlay and do not receive pointer events themselves. Each lane checks its canvas bounds during painting, including after scrolling/zooming. The core fade renderer has an optional handle flag (default true) so arrangement can hide the old small dots without changing other editors. Studio type checking and all 117 tests pass, including pointer presence/leave painting coverage.
