@@ -60,3 +60,5 @@ Hosted follow-up: deployment `87c11e63-8b43-4e29-9ebb-f4b95e5c698d`, build `39be
 ## Fade handle hover styling
 
 Fade handles now use the clip's content color with the existing dark outline. Only the hovered clip shows them; the large grab radius is unchanged. RegionsArea publishes pointer coordinates through TracksManager because the lane canvases sit below the shared input overlay and do not receive pointer events themselves. Each lane checks its canvas bounds during painting, including after scrolling/zooming. The core fade renderer has an optional handle flag (default true) so arrangement can hide the old small dots without changing other editors. Studio type checking and all 117 tests pass, including pointer presence/leave painting coverage.
+
+Hosted hover build: `a4824274-ebb8-4ae1-8fdf-f01bdc97accc`, source `6b92b41c9`, deployment `f8075649-25b1-490f-bfbc-d1a892c8fcda`. Deployment succeeded and the stable alias returns the matching build metadata. Production build passed. Live audio hover appearance/dragging still needs a manual check; the automated audio picker limitation from the previous verification remains.
