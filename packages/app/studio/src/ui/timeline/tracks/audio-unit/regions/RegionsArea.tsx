@@ -94,6 +94,9 @@ export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollCon
     })
 
     lifecycle.ownAll(
+        Events.subscribe(element, "pointermove", (event: PointerEvent) =>
+            manager.regionPointer.setValue({x: event.clientX, y: event.clientY})),
+        Events.subscribe(element, "pointerleave", () => manager.regionPointer.setValue(null)),
         installTimelineClickSeeking(element, x =>
             engine.setPosition(snapping.round(Math.max(0, range.xToUnit(x)))), event => {
             if (Browser.isMacOS() && event.ctrlKey) {return}

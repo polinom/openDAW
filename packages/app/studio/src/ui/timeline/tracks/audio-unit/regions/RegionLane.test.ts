@@ -3,12 +3,14 @@ import {describe, expect, it, vi} from "vitest"
 const harness = vi.hoisted(() => ({
     intersection: undefined as undefined | ((entries: Array<{isIntersecting: boolean}>) => void),
     paint: undefined as undefined | (() => void),
-    requestUpdate: vi.fn(), render: vi.fn()
+    requestUpdate: vi.fn(), render: vi.fn(),
+    pointer: null as {x: number, y: number} | null
 }))
-vi.mock("@opendaw/lib-jsx", () => ({createElement: () => ({classList: {toggle: vi.fn()}})}))
+vi.mock("@opendaw/lib-jsx", () => ({createElement: () => ({classList: {toggle: vi.fn()},
+    getBoundingClientRect: () => ({left: 0, right: 100, top: 0, bottom: 50})})}))
 vi.mock("@/ui/timeline/tracks/audio-unit/TrackStyles.ts", () => ({RegionLaneClassName: "regions"}))
 vi.mock("@/ui/timeline/tracks/audio-unit/regions/RegionRenderer.ts", () => ({RegionRenderer: {render: harness.render}}))
-vi.mock("@opendaw/lib-dom", () => ({Html: {watchIntersection: (_: unknown, callback: typeof harness.intersection) => {
+vi.mock("@opendaw/lib-dom", () => ({Events: {subscribe: () => ({terminate() {}})}, Html: {watchIntersection: (_: unknown, callback: typeof harness.intersection) => {
     harness.intersection = callback
     return {terminate() {}}
 }}}))
@@ -26,9 +28,9 @@ describe("region canvas visibility", () => {
         const observable = {subscribe: () => ({terminate() {}}), catchupAndSubscribe: () => ({terminate() {}})}
         RegionLane({
             lifecycle: {own: (value: unknown) => value, ownAll() {}},
-            range: observable,
+            range: {...observable, xToUnit: (x: number) => x * 2},
             adapter: {regions: {subscribeChanges: observable.subscribe}, enabled: observable, listIndex: 0},
-            trackManager: {scrollableContainer: {}, service: {project: {
+            trackManager: {regionPointer: {...observable, getValue: () => harness.pointer}, scrollableContainer: {}, service: {project: {
                 timelineFocus: {track: observable}, timelineBoxAdapter: {signatureTrack: observable}
             }}}
         } as never)
@@ -42,5 +44,12 @@ describe("region canvas visibility", () => {
         expect(harness.requestUpdate).toHaveBeenCalledTimes(1)
         harness.paint!()
         expect(harness.render).toHaveBeenCalledTimes(2)
+        expect(harness.render.mock.lastCall?.[4]).toBeNull()
+        harness.pointer = {x: 25, y: 20}
+        harness.paint!()
+        expect(harness.render.mock.lastCall?.[4]).toBe(50)
+        harness.pointer = null
+        harness.paint!()
+        expect(harness.render.mock.lastCall?.[4]).toBeNull()
     })
 })
