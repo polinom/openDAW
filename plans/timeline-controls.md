@@ -45,3 +45,11 @@ Click release now also selects the audio unit under the pointer, using the same 
 Studio type checking and 111 tests across 26 files pass; the production UI build passes. Hosted checks are recorded after deployment below.
 
 Hosted selection follow-up: deployment `f6c5d270-4b47-418b-afe8-00ab62e1b2de`, build `1f5e0d2a-4051-43cf-a825-f04f1c8892f1`, source `d2b9aadead3fbcbe7606565eb0ffd3ef902f58c2`. Verified three tracks (Cubed, Nano, Neon): clicking the arrangement selects one corresponding row; Cmd-click adds/removes nonadjacent rows; Shift-click selects all three; plain click returns to one row. Transport text stays unchanged during modified clicks and changes on plain clicks. These are browser gesture checks, not a physical trackpad pinch check.
+
+## Clip duplication and fade handles
+
+Arrangement-focused Ctrl/Cmd+D now consumes the shortcut before global track duplication. It copies selected regions as one block immediately after the selected time span, on their existing tracks, then selects the copies. Repeating the shortcut continues from the copies. Existing overlap preferences still apply. The context-menu Duplicate action shares this command. Empty arrangement selection consumes the shortcut without duplicating a channel; track/header focus retains track duplication.
+
+Audio fade handles use bright 8 px circles with a dark outline and a 16 px diameter grab area (previously 3 px visible / 6 px grab diameter). Shared geometry controls painting and hit testing, keeps zero-fade controls inside the clip, and scales overlapping fade lengths consistently. Handles paint outside the waveform clip, so the upper half stays visible even with zero fades. Dragging uses pointer displacement from the initial grab, preventing the larger target from jumping the fade at drag start. Existing Shift slope editing remains.
+
+Validation: Studio type checking, 117 tests across 28 files, and production build pass. Real-project regressions cover same-track duplicate placement, repeated duplicate selection, multiple adjacent clips, and Undo/Redo. Fade geometry covers zero fades, overlapping fades and narrow clips.

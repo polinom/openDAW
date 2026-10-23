@@ -1,4 +1,5 @@
-import {int, Iterables, Option, unitValue} from "@opendaw/lib-std"
+import {AudioFadeHandles} from "./AudioFadeHandles"
+import {int, isInstanceOf, Iterables, Option, unitValue} from "@opendaw/lib-std"
 import {LoopableRegion, ValueEvent} from "@opendaw/lib-dsp"
 import {AudioRegionBoxAdapter, NoteRegionBoxAdapter, ValueRegionBoxAdapter} from "@opendaw/studio-adapters"
 import {
@@ -137,6 +138,9 @@ export namespace RegionRenderer {
                         }
                     })
                     context.restore()
+                }
+                if (isInstanceOf(region, AudioRegionBoxAdapter)) {
+                    AudioFadeHandles.render(context, range, region.fading, position, complete)
                 }
                 if (selected) {
                     context.fillStyle = labelBackground

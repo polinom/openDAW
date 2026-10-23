@@ -1,3 +1,4 @@
+import {duplicateSelectedRegions} from "./duplicateSelectedRegions"
 import css from "./RegionsArea.sass?inline"
 import {TourAnchors} from "@/ui/tour/TourAnchors"
 import {firstTrackRect} from "@/ui/timeline/tracks/audio-unit/FirstTrackRect"
@@ -77,7 +78,7 @@ export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollCon
     const {audioUnitFreeze} = project
     const regionLocator = createRegionLocator(manager, range, regionSelection, audioUnitFreeze)
     const dragAndDrop = new RegionDragAndDrop(service, capturing, timeline.snapping)
-    const shortcuts = ShortcutManager.get().createContext(element, "Regions")
+    const shortcuts = ShortcutManager.get().createContext(element, "Regions", 1)
     const {engine, boxGraph, overlapResolver, timelineFocus} = project
     const clipboardHandler = RegionsClipboard.createHandler({
         getEnabled: () => !engine.isPlaying.getValue(),
@@ -104,6 +105,10 @@ export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollCon
         }),
         shortcuts,
         ClipboardManager.install(element, clipboardHandler),
+        shortcuts.register(RegionsShortcuts["duplicate-regions"].shortcut, () => {
+            duplicateSelectedRegions(project)
+            return true
+        }),
         shortcuts.register(RegionsShortcuts["select-all"].shortcut, () => {
             regionSelection.select(...manager.tracks()
                 .filter(track => !track.audioUnitBoxAdapter.mapOr(unit => audioUnitFreeze.isFrozen(unit), false))
@@ -313,7 +318,7 @@ export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollCon
                     case "fading-out": {
                         const audioRegion = target.region
                         const isFadeIn = target.part === "fading-in"
-                        const {position, duration, complete, fading} = audioRegion
+                        const {duration, fading} = audioRegion
                         if (event.shiftKey) {
                             const slopeField = isFadeIn ? fading.inSlopeField : fading.outSlopeField
                             const originalSlope = slopeField.getValue()
@@ -328,6 +333,7 @@ export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollCon
                                 cancel: () => editing.modify(() => slopeField.setValue(originalSlope))
                             } satisfies Dragging.Process)
                         }
+                        const startPointer = range.xToUnit(event.clientX - clientRect.left)
                         const originalFadeIn = fading.in
                         const originalFadeOut = fading.out
                         return Option.wrap({
@@ -335,13 +341,13 @@ export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollCon
                                 const pointerPpqn = range.xToUnit(dragEvent.clientX - clientRect.left)
                                 editing.modify(() => {
                                     if (isFadeIn) {
-                                        const newFadeIn = clamp(pointerPpqn - position, 0, duration)
+                                        const newFadeIn = clamp(originalFadeIn + pointerPpqn - startPointer, 0, duration)
                                         fading.inField.setValue(newFadeIn)
                                         if (newFadeIn + fading.out > duration) {
                                             fading.outField.setValue(duration - newFadeIn)
                                         }
                                     } else {
-                                        const newFadeOut = clamp(complete - pointerPpqn, 0, duration)
+                                        const newFadeOut = clamp(originalFadeOut + startPointer - pointerPpqn, 0, duration)
                                         fading.outField.setValue(newFadeOut)
                                         if (fading.in + newFadeOut > duration) {
                                             fading.inField.setValue(duration - newFadeOut)
