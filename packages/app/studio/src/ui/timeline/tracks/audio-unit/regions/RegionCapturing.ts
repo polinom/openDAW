@@ -1,3 +1,4 @@
+import {AudioFadeHandles} from "./AudioFadeHandles"
 import {
     AnyLoopableRegionBoxAdapter,
     AnyRegionBoxAdapter,
@@ -55,11 +56,11 @@ export namespace RegionCapturing {
                     const x1 = range.unitToX(region.complete)
                     if (isInstanceOf(region, AudioRegionBoxAdapter)) {
                         const {fading} = region
-                        const handleRadius = 3
-                        const handleY = track.position + RegionLabel.labelHeight()
-                        const fadeInX = range.unitToX(region.position + fading.in)
-                        const fadeOutX = range.unitToX(region.position + region.duration - fading.out)
-                        if (Geom.isInsideCircle(x, y, fadeInX, handleY, handleRadius)) {
+                        const handleRadius = AudioFadeHandles.hitRadius
+                        const handleY = track.position + AudioFadeHandles.y()
+                        const {inX: fadeInX, outX: fadeOutX} = AudioFadeHandles.positions(range, fading, region.position, region.complete)
+                        if (Geom.isInsideCircle(x, y, fadeInX, handleY, handleRadius)
+                            && Math.abs(x - fadeInX) <= Math.abs(x - fadeOutX)) {
                             return {type: "region", part: "fading-in", region}
                         }
                         if (Geom.isInsideCircle(x, y, fadeOutX, handleY, handleRadius)) {
