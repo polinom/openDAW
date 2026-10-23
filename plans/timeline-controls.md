@@ -43,3 +43,5 @@ Click release now also selects the audio unit under the pointer, using the same 
 `TracksManager.audioUnitAtClientY` resolves against the shared flat visible-row layout, including synthetic folder/bus rows, and measures actual lane bounds. Modulator rows and the empty band do not select an unrelated channel. No schema or project-format change.
 
 Studio type checking and 111 tests across 26 files pass; the production UI build passes. Hosted checks are recorded after deployment below.
+
+Hosted selection follow-up: deployment `f6c5d270-4b47-418b-afe8-00ab62e1b2de`, build `1f5e0d2a-4051-43cf-a825-f04f1c8892f1`, source `d2b9aadead3fbcbe7606565eb0ffd3ef902f58c2`. Verified three tracks (Cubed, Nano, Neon): clicking the arrangement selects one corresponding row; Cmd-click adds/removes nonadjacent rows; Shift-click selects all three; plain click returns to one row. Transport text stays unchanged during modified clicks and changes on plain clicks. These are browser gesture checks, not a physical trackpad pinch check.
