@@ -1,3 +1,4 @@
+import {AudioFadeHandles} from "./AudioFadeHandles"
 import {duplicateSelectedRegions} from "./duplicateSelectedRegions"
 import css from "./RegionsArea.sass?inline"
 import {TourAnchors} from "@/ui/tour/TourAnchors"
@@ -44,7 +45,9 @@ const CursorMap = Object.freeze({
     "loop-duration": Cursor.ExpandWidth,
     "content-start": Cursor.ExpandWidth,
     "fading-in": "ew-resize",
-    "fading-out": "ew-resize"
+    "fading-out": "ew-resize",
+    "fading-in-slope": "ns-resize",
+    "fading-out-slope": "ns-resize"
 }) satisfies Record<string, CssUtils.Cursor | Cursor>
 
 type Construct = {
@@ -318,18 +321,24 @@ export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollCon
                         return manager.startRegionModifier(RegionLoopDurationModifier.create(regionSelection.selected(),
                             {project, element, snapping, pointerPulse, reference}))
                     case "fading-in":
+                    case "fading-in-slope":
+                    case "fading-out-slope":
                     case "fading-out": {
                         const audioRegion = target.region
-                        const isFadeIn = target.part === "fading-in"
+                        const isFadeIn = target.part === "fading-in" || target.part === "fading-in-slope"
                         const {duration, fading} = audioRegion
-                        if (event.shiftKey) {
+                        const diamond = target.part === "fading-in-slope" || target.part === "fading-out-slope"
+                        if (diamond || event.shiftKey) {
                             const slopeField = isFadeIn ? fading.inSlopeField : fading.outSlopeField
                             const originalSlope = slopeField.getValue()
                             const startY = event.clientY
+                            const laneHeight = manager.tracks().find(track => track.trackBoxAdapter === audioRegion.trackBoxAdapter.unwrap())?.size ?? 48
                             return Option.wrap({
                                 update: (dragEvent: Dragging.Event) => {
                                     const deltaY = startY - dragEvent.clientY
-                                    const newSlope = clamp(originalSlope + deltaY * 0.01, 0.001, 0.999)
+                                    const newSlope = diamond
+                                        ? AudioFadeHandles.slopeAfterDrag(originalSlope, -deltaY, laneHeight, isFadeIn)
+                                        : clamp(originalSlope + deltaY * 0.01, 0.001, 0.999)
                                     editing.modify(() => slopeField.setValue(newSlope), false)
                                 },
                                 approve: () => editing.mark(),

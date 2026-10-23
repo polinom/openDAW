@@ -1,5 +1,5 @@
 import type {FadingEnvelope} from "@opendaw/lib-dsp"
-import {clamp, TAU} from "@opendaw/lib-std"
+import {clamp, Curve, TAU} from "@opendaw/lib-std"
 import type {TimelineRange} from "@opendaw/studio-core"
 import {RegionLabel} from "@/ui/timeline/RegionLabel"
 
@@ -20,6 +20,25 @@ export namespace AudioFadeHandles {
         }
     }
 
+    export const slopeHandles = (range: Pick<TimelineRange, "unitToX">,
+                                 fading: FadingEnvelope.Config, start: number, end: number, height: number) => {
+        const duration = Math.max(0, end - start)
+        const scale = fading.in + fading.out > duration ? duration / (fading.in + fading.out) : 1
+        const top = RegionLabel.labelHeight() + 1
+        const bottom = height
+        return [
+            ...(fading.in > 0 ? [{part: "fading-in-slope" as const,
+                x: range.unitToX(start + fading.in * scale / 2),
+                y: bottom + Curve.normalizedAt(0.5, fading.inSlope) * (top - bottom)}] : []),
+            ...(fading.out > 0 ? [{part: "fading-out-slope" as const,
+                x: range.unitToX(end - fading.out * scale / 2),
+                y: top + Curve.normalizedAt(0.5, fading.outSlope) * (bottom - top)}] : [])
+        ]
+    }
+
+    export const slopeAfterDrag = (original: number, deltaY: number, height: number, fadeIn: boolean): number =>
+        clamp(original + (fadeIn ? -deltaY : deltaY) / Math.max(1, height - RegionLabel.labelHeight() - 1), 0.001, 0.999)
+
     export const render = (context: CanvasRenderingContext2D, range: TimelineRange,
                            fading: FadingEnvelope.Config, start: number, end: number, color: string): void => {
         const {inX, outX} = positions(range, fading, start, end)
@@ -31,6 +50,16 @@ export namespace AudioFadeHandles {
         for (const x of [inX, outX]) {
             context.beginPath()
             context.arc(x * dpr, y() * dpr, radius * dpr, 0, TAU)
+            context.fill()
+            context.stroke()
+        }
+        for (const {x, y} of slopeHandles(range, fading, start, end, context.canvas.clientHeight)) {
+            context.beginPath()
+            context.moveTo(x * dpr, (y - radius) * dpr)
+            context.lineTo((x + radius) * dpr, y * dpr)
+            context.lineTo(x * dpr, (y + radius) * dpr)
+            context.lineTo((x - radius) * dpr, y * dpr)
+            context.closePath()
             context.fill()
             context.stroke()
         }

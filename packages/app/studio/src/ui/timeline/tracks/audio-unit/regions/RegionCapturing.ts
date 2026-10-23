@@ -21,6 +21,7 @@ export type RegionCaptureTarget =
     | { type: "region", part: "loop-duration", region: AnyRegionBoxAdapter }
     | { type: "region", part: "fading-in", region: AudioRegionBoxAdapter }
     | { type: "region", part: "fading-out", region: AudioRegionBoxAdapter }
+    | { type: "region", part: "fading-in-slope" | "fading-out-slope", region: AudioRegionBoxAdapter }
     | { type: "track", track: TrackContext }
 
 export namespace RegionCapturing {
@@ -65,6 +66,11 @@ export namespace RegionCapturing {
                         }
                         if (Geom.isInsideCircle(x, y, fadeOutX, handleY, handleRadius)) {
                             return {type: "region", part: "fading-out", region}
+                        }
+                        for (const handle of AudioFadeHandles.slopeHandles(range, fading, region.position, region.complete, track.size)) {
+                            if (Geom.isInsideCircle(x, y, handle.x, track.position + handle.y, handleRadius)) {
+                                return {type: "region", part: handle.part, region}
+                            }
                         }
                     }
                     if (UnionAdapterTypes.isLoopableRegion(region)) {
