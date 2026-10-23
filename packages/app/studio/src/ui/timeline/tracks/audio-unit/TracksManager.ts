@@ -202,6 +202,14 @@ export class TracksManager implements Terminable {
         return this.#flatLayout().rows.flatMap(row => row.content.kind === "track" ? [row.content.track] : [])
     }
 
+    audioUnitAtClientY(clientY: number): Option<AudioUnitBox> {
+        const row = this.#flatLayout().rows.find(row => {
+            const rect = this.#element(row.content).getBoundingClientRect()
+            return rect.top <= clientY && clientY < rect.bottom
+        })
+        return Option.wrap(row?.unit)
+    }
+
     numTracks(): int {return this.tracks().length}
 
     terminate(): void {

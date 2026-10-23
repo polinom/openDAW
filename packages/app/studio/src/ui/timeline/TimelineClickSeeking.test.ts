@@ -15,7 +15,8 @@ const setup = () => {
         getBoundingClientRect: () => ({left: 100})
     }) as unknown as HTMLElement
     const seek = vi.fn()
-    const subscription = installTimelineClickSeeking(element, seek)
+    const selectTrack = vi.fn()
+    const subscription = installTimelineClickSeeking(element, seek, selectTrack)
     const pointer = (type: string, values = {}) => {
         const event = Object.assign(new Event(type), {
             pointerId: 1, isPrimary: true, button: 0, clientX: 140, clientY: 20,
@@ -23,7 +24,7 @@ const setup = () => {
         })
         ;(["pointerdown", "lostpointercapture"].includes(type) ? element : owner).dispatchEvent(event)
     }
-    return {owner, seek, subscription, pointer}
+    return {owner, seek, selectTrack, subscription, pointer}
 }
 
 describe("timeline click seeking", () => {
@@ -66,6 +67,23 @@ describe("timeline click seeking", () => {
         else {subscription.terminate()}
         pointer("pointerup")
         expect(seek).not.toHaveBeenCalled()
+        subscription.terminate()
+    })
+    it.each(["shiftKey", "metaKey", "ctrlKey"])("selects tracks with %s without seeking", key => {
+        const {pointer, seek, selectTrack, subscription} = setup()
+        pointer("pointerdown", {[key]: true})
+        pointer("pointerup", {[key]: true})
+        expect(selectTrack).toHaveBeenCalledOnce()
+        expect(selectTrack.mock.calls[0][0][key]).toBe(true)
+        expect(seek).not.toHaveBeenCalled()
+        subscription.terminate()
+    })
+    it("keeps track multi-selection when a click becomes a drag", () => {
+        const {pointer, selectTrack, subscription} = setup()
+        pointer("pointerdown")
+        pointer("pointermove", {clientX: 170})
+        pointer("pointerup")
+        expect(selectTrack).not.toHaveBeenCalled()
         subscription.terminate()
     })
     it("ignores another pointer's release", () => {

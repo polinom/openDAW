@@ -35,3 +35,11 @@ Verified deployment `29eca7b6-6b3f-4d45-bfcc-332727fb2a87`; UI build remains `d9
 - Large hosted ONNX runtime is byte-identical to the original 28,312,028-byte WASM; SHA256 `3ad23231b5bd6d9dda55a7f84606315e0bf35b6750c28ee993c987c54cacab0f`. It uses a compressed static payload plus a narrow streaming Pages Function because static gzip headers resulted in double compression.
 - Native Mac pinch feel, populated region gestures, subjective listening and the full factory/manual library remain separate from these hosting checks.
 - Repeatable staging and hosting details: `tools/cloudflare/README.md`.
+
+## Track selection from the arrangement
+
+Click release now also selects the audio unit under the pointer, using the same `AudioUnitSelection.click` method as headers/mixer. Cmd/Ctrl toggles tracks; Shift selects a visible range. Modified clicks do not seek. Alt edits and Mac Ctrl-context-click retain their prior behavior. Drags/cancellation do not collapse an existing multi-selection.
+
+`TracksManager.audioUnitAtClientY` resolves against the shared flat visible-row layout, including synthetic folder/bus rows, and measures actual lane bounds. Modulator rows and the empty band do not select an unrelated channel. No schema or project-format change.
+
+Studio type checking and 111 tests across 26 files pass; the production UI build passes. Hosted checks are recorded after deployment below.

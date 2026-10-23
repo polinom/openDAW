@@ -2,12 +2,13 @@ import {Events} from "@opendaw/lib-dom"
 import {Terminable, Terminator} from "@opendaw/lib-std"
 
 // Observe clicks without taking pointer capture away from region edits or selection.
-export const installTimelineClickSeeking = (element: HTMLElement, seek: (x: number) => void): Terminable => {
+export const installTimelineClickSeeking = (element: HTMLElement, seek: (x: number) => void,
+                                            selectTrack?: (event: PointerEvent) => void): Terminable => {
     const gesture = new Terminator()
     const owner = element.ownerDocument.defaultView!
     return Terminable.many(gesture, Events.subscribe(element, "pointerdown", (down: PointerEvent) => {
         gesture.terminate()
-        if (!down.isPrimary || down.button !== 0 || down.altKey || down.shiftKey || down.ctrlKey || down.metaKey) {return}
+        if (!down.isPrimary || down.button !== 0 || down.altKey) {return}
         const {pointerId, clientX, clientY} = down
         const moved = (event: PointerEvent) => Math.hypot(event.clientX - clientX, event.clientY - clientY) > 5
         gesture.ownAll(
@@ -17,7 +18,10 @@ export const installTimelineClickSeeking = (element: HTMLElement, seek: (x: numb
             Events.subscribe(owner, "pointerup", (event: PointerEvent) => {
                 if (event.pointerId !== pointerId) {return}
                 gesture.terminate()
-                if (!moved(event) && !event.altKey && !event.shiftKey && !event.ctrlKey && !event.metaKey) {
+                if (moved(event) || event.altKey) {return}
+                selectTrack?.(down)
+                if (!down.shiftKey && !down.ctrlKey && !down.metaKey
+                    && !event.shiftKey && !event.ctrlKey && !event.metaKey) {
                     seek(event.clientX - element.getBoundingClientRect().left)
                 }
             }, {capture: true}),
