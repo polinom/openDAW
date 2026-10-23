@@ -30,6 +30,7 @@ import {AnyDragData} from "@/ui/AnyDragData"
 import {Dialogs} from "@/ui/components/dialogs"
 import {ClipboardManager, ElementCapturing, RegionsClipboard, TimelineRange} from "@opendaw/studio-core"
 import {RegionsShortcuts} from "@/ui/shortcuts/RegionsShortcuts"
+import {installTimelineClickSeeking} from "@/ui/timeline/TimelineClickSeeking"
 import {WheelScaling} from "@/ui/timeline/WheelScaling"
 import {moveByWheelPixels} from "@/ui/timeline/editors/WheelScroll"
 
@@ -92,6 +93,8 @@ export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollCon
     })
 
     lifecycle.ownAll(
+        installTimelineClickSeeking(element, x =>
+            engine.setPosition(snapping.round(Math.max(0, range.xToUnit(x))))),
         regionSelection.catchupAndSubscribe({
             onSelected: (selectable: AnyRegionBoxAdapter) => selectable.onSelected(),
             onDeselected: (selectable: AnyRegionBoxAdapter) => selectable.onDeselected()
@@ -246,7 +249,7 @@ export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollCon
             leave: () => markerPosition.setValue(null)
         }),
         Events.subscribe(element, "wheel", (event: WheelEvent) => {
-            if (event.shiftKey) {
+            if (event.ctrlKey || event.shiftKey) {
                 event.preventDefault()
                 event.stopPropagation()
                 WheelScaling.apply(element, range, event)
