@@ -24,7 +24,7 @@ import {RegionContentStartModifier} from "@/ui/timeline/tracks/audio-unit/region
 import {ScrollModel} from "@/ui/components/ScrollModel.ts"
 import {RegionDragAndDrop} from "@/ui/timeline/tracks/audio-unit/regions/RegionDragAndDrop.ts"
 import {PanelType} from "@/ui/workspace/PanelType.ts"
-import {CssUtils, Dragging, Events, Html, Keyboard, ShortcutManager} from "@opendaw/lib-dom"
+import {Browser, CssUtils, Dragging, Events, Html, Keyboard, ShortcutManager} from "@opendaw/lib-dom"
 import {DragAndDrop} from "@/ui/DragAndDrop"
 import {AnyDragData} from "@/ui/AnyDragData"
 import {Dialogs} from "@/ui/components/dialogs"
@@ -94,7 +94,10 @@ export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollCon
 
     lifecycle.ownAll(
         installTimelineClickSeeking(element, x =>
-            engine.setPosition(snapping.round(Math.max(0, range.xToUnit(x))))),
+            engine.setPosition(snapping.round(Math.max(0, range.xToUnit(x)))), event => {
+            if (Browser.isMacOS() && event.ctrlKey) {return}
+            manager.audioUnitAtClientY(event.clientY).ifSome(unit => project.trackSelection.click(unit, event))
+        }),
         regionSelection.catchupAndSubscribe({
             onSelected: (selectable: AnyRegionBoxAdapter) => selectable.onSelected(),
             onDeselected: (selectable: AnyRegionBoxAdapter) => selectable.onDeselected()
