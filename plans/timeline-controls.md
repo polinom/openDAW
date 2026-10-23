@@ -23,3 +23,15 @@ Final Studio type checking passed. All 107 tests passed across 26 files, includi
 Browser automation could not open the local HTTPS preview: the in-app browser rejected its local certificate and Chrome returned `ERR_BLOCKED_BY_CLIENT`. No certificate/security setting was changed. Native macOS pinch feel and full UI interaction remain unverified.
 
 Manual checks: click empty lanes and region bodies with Smart/fixed/Off snapping; drag regions and their handles; rectangle-select; Shift-select and Alt-edit; pinch over regions and folded groups while checking that track vertical position stays fixed; then try normal two-finger scroll and ruler zoom. Playback should continue when seeking.
+
+## Cloudflare hosted verification (2026-10-23)
+
+Public branch preview: https://timeline-controls.opendaw-previews.pages.dev/.
+Verified deployment `29eca7b6-6b3f-4d45-bfcc-332727fb2a87`; UI build remains `d9abbe3b-536c-40ac-8983-7a51c3a4f67b` from `e2702c57e`. Later source commits add deployment tooling and notes only.
+
+- Cloudflare deployment status succeeded. Public HTTPS works. Static responses have COOP, COEP and CORP headers.
+- Studio starts its audio engine (48 kHz, memory telemetry present). Clicking the empty arrangement at x=955 moves the displayed position from bar 001 to bar 005 under Smart snapping.
+- Saved `Cloudflare preview verification`, returned to the library, reloaded the page, and reopened the named project. The playhead resets on reopen; this is not a claim that transport position persists.
+- Large hosted ONNX runtime is byte-identical to the original 28,312,028-byte WASM; SHA256 `3ad23231b5bd6d9dda55a7f84606315e0bf35b6750c28ee993c987c54cacab0f`. It uses a compressed static payload plus a narrow streaming Pages Function because static gzip headers resulted in double compression.
+- Native Mac pinch feel, populated region gestures, subjective listening and the full factory/manual library remain separate from these hosting checks.
+- Repeatable staging and hosting details: `tools/cloudflare/README.md`.
