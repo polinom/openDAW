@@ -1,5 +1,5 @@
 import type {FadingEnvelope} from "@opendaw/lib-dsp"
-import {clamp, Curve, TAU} from "@opendaw/lib-std"
+import {clamp, Curve} from "@opendaw/lib-std"
 import type {TimelineRange} from "@opendaw/studio-core"
 import {RegionLabel} from "@/ui/timeline/RegionLabel"
 
@@ -49,7 +49,7 @@ export namespace AudioFadeHandles {
         context.lineWidth = 1.5 * dpr
         for (const x of [inX, outX]) {
             context.beginPath()
-            context.arc(x * dpr, y() * dpr, radius * dpr, 0, TAU)
+            context.rect((x - radius) * dpr, (y() - radius) * dpr, radius * 2 * dpr, radius * 2 * dpr)
             context.fill()
             context.stroke()
         }
