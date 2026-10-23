@@ -16,3 +16,5 @@ This block is written and re-added by `turbo` before repository-scoped commands 
 - Arrangement lane canvases sit below RegionsArea's input overlay. Track hover comes from RegionsArea through TracksManager.regionPointer; do not attach hover handlers directly to RegionLane. Audio fade handle fill follows clip contentColor and appears only over the clip.
 
 - Linked build artifacts can create duplicate studio-core singletons: core-wasm and Studio must resolve the same compiled core index. A build can succeed while New Project fails with `No engine installed`. Vite's exact core alias enforces one registration; always smoke-test project startup after changing artifact links.
+
+- Content editor navigation lives in EditorNavigation.ts at the shared ContentEditor body. Use the TimeAxis bounds for x coordinates: the body includes the left piano/control header. Capture Ctrl-wheel before child pitch scrolling/audio zoom handlers; preserve regular scroll and avoid installing duplicate pinch handlers in each child lane.
