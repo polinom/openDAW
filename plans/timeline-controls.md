@@ -104,3 +104,5 @@ Arrangement-focused Cmd+E (Mac) / Ctrl+E (Windows/Linux) splits selected attache
 ## Split selection parity and marker-lane seeking
 
 Cmd/Ctrl+E and the split menu now keep only the left/original regions selected, matching Option/Alt-click. The command no longer selects new right pieces. The Markers lane installs the shared click-release observer with timeline snapping; one ordinary click seeks at its x coordinate, including empty marker space. Marker drags, modifiers and double-click creation retain their handlers. Type checking and all 131 tests pass, including the updated explicit left-only selection regression.
+
+Selection/markers deployment `6169debf-1063-499f-ae50-0f0ae5daf774`, build `d71b6118-fc65-4648-9789-63d7adb84ac5`, source `a0db08771` succeeded. Hosted single marker-lane click x740/y113 changed transport from bar001 to bar004 under Smart snapping. Set 1/4 snapping, clicked within the selected Cubed clip, and Cmd+E created two pieces with only the left piece highlighted. Saved, reloaded the library, and reopened the fixture; split pieces persist and engine startup is healthy. Undo/Redo semantics are covered by the real-project tests.
