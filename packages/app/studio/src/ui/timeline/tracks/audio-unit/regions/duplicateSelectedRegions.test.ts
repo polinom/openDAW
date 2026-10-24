@@ -1,3 +1,4 @@
+import {splitSelectedRegions} from "./splitSelectedRegions"
 import {duplicateSelectedRegions} from "./duplicateSelectedRegions"
 import {describe, expect, it} from "vitest"
 import {isDefined, Option, Terminable, UUID} from "@opendaw/lib-std"
@@ -85,6 +86,35 @@ describe("arrangement duplicate selection", () => {
         const {project, trackAdapter: track} = await buildProject([{position: 0, duration: 960}])
         duplicateSelectedRegions(project)
         expect(track.regions.collection.asArray()).toHaveLength(1)
+        project.terminate()
+    })
+})
+
+
+describe("split selected regions at playhead", () => {
+    it("splits selected regions at the same position in one undo step", async () => {
+        const {project, trackAdapter: track} = await buildProject([{position: 0, duration: 960}, {position: 1920, duration: 960}])
+        const source = track.regions.collection.asArray()[0]
+        project.regionSelection.select(source)
+        splitSelectedRegions(project, 480)
+        expect(track.regions.collection.asArray().map(r => [r.position, r.duration]))
+            .toEqual([[0, 480], [480, 480], [1920, 960]])
+        expect(project.regionSelection.count()).toBe(2)
+        expect(project.editing.undo()).toBe(true)
+        expect(track.regions.collection.asArray().map(r => [r.position, r.duration]))
+            .toEqual([[0, 960], [1920, 960]])
+        expect(project.editing.redo()).toBe(true)
+        expect(track.regions.collection.asArray()).toHaveLength(3)
+        project.terminate()
+    })
+    it("does nothing with no selection or a playhead on a clip edge", async () => {
+        const {project, trackAdapter: track} = await buildProject([{position: 100, duration: 960}])
+        splitSelectedRegions(project, 580)
+        project.regionSelection.select(...track.regions.collection.asArray())
+        splitSelectedRegions(project, 100)
+        splitSelectedRegions(project, 1060)
+        splitSelectedRegions(project, 1200)
+        expect(track.regions.collection.asArray().map(r => [r.position, r.duration])).toEqual([[100, 960]])
         project.terminate()
     })
 })

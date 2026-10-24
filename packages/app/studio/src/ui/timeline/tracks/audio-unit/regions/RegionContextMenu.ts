@@ -1,3 +1,4 @@
+import {splitSelectedRegions} from "./splitSelectedRegions"
 import {duplicateSelectedRegions} from "./duplicateSelectedRegions"
 import {Editing, EmptyExec, isInstanceOf, isNull, RuntimeNotifier, Selection, Terminable} from "@opendaw/lib-std"
 import {ppqn} from "@opendaw/lib-dsp"
@@ -71,6 +72,12 @@ export const installRegionContextMenu =
                 MenuItem.default({label: "Delete", shortcut: "⌫"})
                     .setTriggerProcedure(() => editing.modify(() => selection.selected().slice()
                         .forEach(adapter => adapter.box.delete()))),
+                MenuItem.default({
+                    label: "Split at playhead",
+                    shortcut: RegionsShortcuts["split-regions"].shortcut.format(),
+                    selectable: selection.selected().some(region =>
+                        region.position < project.engine.position.getValue() && project.engine.position.getValue() < region.complete)
+                }).setTriggerProcedure(() => splitSelectedRegions(project)),
                 MenuItem.default({label: "Duplicate", shortcut: RegionsShortcuts["duplicate-regions"].shortcut.format()})
                     .setTriggerProcedure(() => duplicateSelectedRegions(project)),
                 MenuItem.default({

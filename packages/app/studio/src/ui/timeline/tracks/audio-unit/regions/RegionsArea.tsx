@@ -1,3 +1,4 @@
+import {splitSelectedRegions} from "./splitSelectedRegions"
 import {AudioFadeHandles} from "./AudioFadeHandles"
 import {duplicateSelectedRegions} from "./duplicateSelectedRegions"
 import css from "./RegionsArea.sass?inline"
@@ -111,6 +112,10 @@ export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollCon
         }),
         shortcuts,
         ClipboardManager.install(element, clipboardHandler),
+        shortcuts.register(RegionsShortcuts["split-regions"].shortcut, () => {
+            splitSelectedRegions(project)
+            return true
+        }),
         shortcuts.register(RegionsShortcuts["duplicate-regions"].shortcut, () => {
             duplicateSelectedRegions(project)
             return true
