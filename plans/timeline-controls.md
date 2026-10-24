@@ -117,3 +117,5 @@ Inline palette deployment `6bffec16-48f9-4578-87fc-ada4eb56ae98`, build `b4cf569
 Inline palette size follow-up: reduce swatches from 24 px to 14 px, retain a 6 px gap, align the row to the left and reduce padding/borders. This brings square size close to menu text height, matching the supplied reference proportions.
 
 Smaller palette deployment `702d607c-ee04-4c64-a413-dc471a5bd335`, build `4cce8ea0-057d-4795-b45f-6aaa4af778fb`, source `bad16ed51` succeeded. Production build passed. Hosted screenshot confirms six compact, left-aligned squares close to menu text height and the saved Blue selection border. This is a stylesheet-only adjustment; no new interaction tests were added.
+
+Palette alignment follow-up: align the first swatch with the default menu label column (2.25 em inset) and increase the gap from 6 px to 10 px. Square size remains 14 px.
