@@ -1,3 +1,4 @@
+import {TrackHeightDefaults} from "../TrackHeightDefaults"
 import {AudioUnitBox, TrackBox} from "@opendaw/studio-boxes"
 import {asInstanceOf, Editing, int, Nullable, UUID} from "@opendaw/lib-std"
 import {TrackType} from "@opendaw/studio-adapters"
@@ -20,6 +21,7 @@ export namespace RecordTrack {
             index = Math.max(index, trackBox.index.getValue())
         }
         return editing.modify(() => TrackBox.create(audioUnitBox.graph, UUID.generate(), box => {
+            box.height.setValue(TrackHeightDefaults.get())
             box.type.setValue(type)
             box.index.setValue(index + 1)
             box.tracks.refer(audioUnitBox.tracks)

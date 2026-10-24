@@ -1,3 +1,4 @@
+import {TrackHeightDefaults} from "@opendaw/studio-core"
 import {Surface} from "@/ui/surface/Surface"
 import {Promises} from "@opendaw/lib-runtime"
 import {TracksManager} from "./TracksManager"
@@ -133,6 +134,7 @@ export const UnitLane = ({lifecycle, service, trackManager, audioUnitBoxAdapter}
                     editing.modify(() => resolved.forEach(({sample, type, audioFileBoxFactory}, index) => {
                         const targetTrack = index === 0
                             ? TrackBox.create(boxGraph, UUID.generate(), box => {
+                                box.height.setValue(TrackHeightDefaults.get())
                                 box.type.setValue(TrackType.Audio)
                                 box.tracks.refer(audioUnitBoxAdapter.box.tracks)
                                 box.index.setValue(audioUnitBoxAdapter.tracks.collection.getMinFreeIndex())

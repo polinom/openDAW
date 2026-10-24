@@ -1,3 +1,4 @@
+import {MaxTrackHeight} from "@opendaw/studio-enums"
 import {z} from "zod"
 
 export const FpsOptions = [24, 25, 29.97, 30] as const
@@ -29,13 +30,15 @@ export const StudioSettingsSchema = z.object({
         "tempo": z.boolean(),
         "signature": z.boolean(),
         "clips": z.boolean(),
-        "follow-cursor": z.boolean()
+        "follow-cursor": z.boolean(),
+        "default-track-height": z.number().int().min(48).max(MaxTrackHeight).catch(48)
     }).default({
         "markers": true,
         "tempo": false,
         "signature": false,
         "clips": true,
-        "follow-cursor": false
+        "follow-cursor": false,
+        "default-track-height": 48
     }),
     "appearance": z.object({
         "neutral-hue": z.number().catch(197),
