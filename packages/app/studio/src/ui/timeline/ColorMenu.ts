@@ -8,6 +8,7 @@ export namespace ColorMenu {
         {label: "Orange", hue: ColorCodes.forTrackType(TrackType.Notes)},
         {label: "Green", hue: ColorCodes.forTrackType(TrackType.Value)},
         {label: "Red", hue: 8.0},
+        {label: "Violet", hue: 270.0},
         {label: "Purple", hue: 322.0},
         {label: "Yellow", hue: 60.0}
     ].sort((a, b) => a.hue - b.hue)
