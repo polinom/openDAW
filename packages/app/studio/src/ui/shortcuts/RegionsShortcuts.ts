@@ -4,6 +4,10 @@ import {CommonShortcuts} from "@/ui/shortcuts/CommonShortcuts"
 export const RegionsShortcutsFactory = ShortcutValidator.validate({
     ...CommonShortcuts.Selection,
     ...CommonShortcuts.Snapping,
+    "split-regions": {
+        shortcut: Shortcut.of(Key.KeyE, {ctrl: true}),
+        description: "Split selected regions at playhead"
+    },
     "duplicate-regions": {
         shortcut: Shortcut.of(Key.KeyD, {ctrl: true}),
         description: "Duplicate selected regions"

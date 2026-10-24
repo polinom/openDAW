@@ -94,3 +94,8 @@ RegionEditing.cut and the middle-section clip helper now preserve fades only at 
 Adapter and Studio type checks plus 129 tests across 30 files pass. Real-project regressions cover consolidated/nonconsolidated cuts, slopes, repeated/edge cuts, middle-section removal, cutting inside a fade, and Undo/Redo. Build/test/type aliases resolve the rebuilt adapter package consistently across linked dependencies.
 
 Split-fade deployment succeeded: `dc2763e5-4e26-4105-9f2f-94d52009d85b`, build `cf61075a-60b1-49b5-9c54-ef9cf1affc63`, source `e51db17bd`. Hosted saved-project reopen starts the engine at 48 kHz with output/memory telemetry after rebuilding and aliasing adapters. Live audio split interaction remains a manual check; graph/Undo/Redo behavior is covered by real-project tests. Previously split saved clips are not automatically rewritten.
+
+
+## Split at playhead shortcut
+
+Arrangement-focused Cmd+E (Mac) / Ctrl+E (Windows/Linux) splits selected attached, unfrozen regions containing the current playhead. The command reads transport position once and does not snap it a second time. Both halves stay selected, existing unrelated selection remains, and all cuts share one undo transaction. Empty selections, boundary positions and nonintersecting clips are no-ops. The context menu includes Split at playhead with the shortcut. It reuses RegionEditing.cut with the same consolidation default as Option/Alt-click and preserves the split fade fix. Studio type checking and 131 tests across 30 files pass, including selected clip boundaries/placement, no-selection/edge no-ops and Undo/Redo.
