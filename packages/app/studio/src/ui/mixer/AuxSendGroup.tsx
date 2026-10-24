@@ -1,3 +1,4 @@
+import {TrackHeightDefaults} from "@opendaw/studio-core"
 import css from "./AuxSendGroup.sass?inline"
 import {Lifecycle, SortedSet, StringComparator, Terminator, UUID} from "@opendaw/lib-std"
 import {AudioBusFactory, AudioUnitBoxAdapter, AuxSendBoxAdapter} from "@opendaw/studio-adapters"
@@ -63,6 +64,7 @@ export const AuxSendGroup = ({lifecycle, project, audioUnitAdapter}: Construct) 
                         project.editing.modify(() => {
                             const audioBusBox = AudioBusFactory.create(project.skeleton,
                                 name, icon, AudioUnitType.Aux, Colors.green)
+                            TrackHeightDefaults.applyBus(audioBusBox)
                             AuxSendBox.create(project.boxGraph, UUID.generate(), box => {
                                 box.audioUnit.refer(audioUnitAdapter.box.auxSends)
                                 box.targetBus.refer(audioBusBox.input)

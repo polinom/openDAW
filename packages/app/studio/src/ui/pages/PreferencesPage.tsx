@@ -4,7 +4,7 @@ import {StudioService} from "@/service/StudioService.ts"
 import {BackButton} from "@/ui/pages/BackButton"
 import {Files, Html, ShortcutDefinitions} from "@opendaw/lib-dom"
 import {PreferencePanel} from "@/ui/PreferencePanel"
-import {FilePickerAcceptTypes, StudioPreferences} from "@opendaw/studio-core"
+import {FilePickerAcceptTypes, StudioPreferences, TrackHeightDefaults} from "@opendaw/studio-core"
 import {StudioShortcutManager} from "@/service/StudioShortcutManager"
 import {Notifier, Objects} from "@opendaw/lib-std"
 import {ShortcutManagerView} from "@/ui/components/ShortcutManagerView"
@@ -33,6 +33,7 @@ export const PreferencesPage: PageFactory<StudioService> = ({lifecycle, service}
                     </div>
                     <PreferencePanel lifecycle={lifecycle}
                                      preferences={StudioPreferences}
+                                     numberGuards={{"timeline.default-track-height": {guard: TrackHeightDefaults.normalize}}}
                                      labels={PreferencesPageLabels.StudioSettingsLabels}
                                      options={PreferencesPageLabels.StudioSettingsOptions}
                                      dropdowns={PreferencesPageLabels.StudioSettingsDropdowns}/>

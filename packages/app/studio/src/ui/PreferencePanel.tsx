@@ -1,6 +1,6 @@
 import css from "./PreferencePanel.sass?inline"
 import {Html} from "@opendaw/lib-dom"
-import {isDefined, Lifecycle, Optional} from "@opendaw/lib-std"
+import {isDefined, Lifecycle, Optional, ValueGuard} from "@opendaw/lib-std"
 import {createElement, Frag} from "@opendaw/lib-jsx"
 import {Colors, IconSymbol} from "@opendaw/studio-enums"
 import {Checkbox} from "@/ui/components/Checkbox"
@@ -38,10 +38,11 @@ type Construct<ROOT_SETTINGS, SETTINGS = ROOT_SETTINGS> = {
     labels: NestedLabels<SETTINGS>
     options?: SelectOptions<SETTINGS>
     dropdowns?: SelectOptions<SETTINGS>
+    numberGuards?: Readonly<Record<string, ValueGuard<number>>>
 }
 
 export const PreferencePanel = <ROOT_SETTINGS, SETTINGS = ROOT_SETTINGS>(
-    {lifecycle, preferences, pathPrefix = [], labels, options, dropdowns}: Construct<ROOT_SETTINGS, SETTINGS>
+    {lifecycle, preferences, pathPrefix = [], labels, options, dropdowns, numberGuards}: Construct<ROOT_SETTINGS, SETTINGS>
 ) => {
     const settings = pathPrefix.reduce(
         (obj, key) => (obj as Record<string, unknown>)[key],
@@ -69,7 +70,8 @@ export const PreferencePanel = <ROOT_SETTINGS, SETTINGS = ROOT_SETTINGS>(
                                 pathPrefix={currentPath}
                                 labels={nestedLabels.fields}
                                 options={nestedOptions}
-                                dropdowns={nestedDropdowns}/>
+                                dropdowns={nestedDropdowns}
+                                numberGuards={numberGuards}/>
                         </details>
                     )
                 }
@@ -121,7 +123,8 @@ export const PreferencePanel = <ROOT_SETTINGS, SETTINGS = ROOT_SETTINGS>(
                             <div className="number-field">
                                 <span style={{color: Colors.shadow.toString()}}>{label}</span>
                                 <hr/>
-                                <NumberInput lifecycle={lifecycle} model={createModel()} maxChars={4} className="big"/>
+                                <NumberInput lifecycle={lifecycle} model={createModel()} maxChars={4} className="big"
+                                             guard={numberGuards?.[currentPath.join(".")]}/>
                             </div>
                         )
                     }
