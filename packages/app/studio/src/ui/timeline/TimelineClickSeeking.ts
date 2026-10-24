@@ -1,3 +1,4 @@
+import {StudioPreferences} from "@opendaw/studio-core"
 import {Events} from "@opendaw/lib-dom"
 import {Terminable, Terminator} from "@opendaw/lib-std"
 
@@ -20,7 +21,8 @@ export const installTimelineClickSeeking = (element: HTMLElement, seek: (x: numb
                 gesture.terminate()
                 if (moved(event) || event.altKey) {return}
                 selectTrack?.(down)
-                if (!down.shiftKey && !down.ctrlKey && !down.metaKey
+                if (StudioPreferences.settings.timeline["click-to-seek"]
+                    && !down.shiftKey && !down.ctrlKey && !down.metaKey
                     && !event.shiftKey && !event.ctrlKey && !event.metaKey) {
                     seek(event.clientX - element.getBoundingClientRect().left)
                 }

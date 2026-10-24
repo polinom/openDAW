@@ -1,5 +1,9 @@
-import {describe, expect, it, vi} from "vitest"
+import {StudioPreferences} from "@opendaw/studio-core"
+import {beforeEach, describe, expect, it, vi} from "vitest"
 import {installTimelineClickSeeking} from "./TimelineClickSeeking"
+
+vi.mock("@opendaw/studio-core", () => ({StudioPreferences: {settings: {timeline: {"click-to-seek": true}}}}))
+beforeEach(() => {StudioPreferences.settings.timeline["click-to-seek"] = true})
 
 vi.mock("@opendaw/lib-dom", () => ({
     Events: {subscribe: (target: EventTarget, type: string, listener: EventListener, options?: AddEventListenerOptions) => {
@@ -28,6 +32,19 @@ const setup = () => {
 }
 
 describe("timeline click seeking", () => {
+    it("toggles seeking live without disabling track selection", () => {
+        const {pointer, seek, selectTrack, subscription} = setup()
+        StudioPreferences.settings.timeline["click-to-seek"] = false
+        pointer("pointerdown")
+        pointer("pointerup")
+        expect(seek).not.toHaveBeenCalled()
+        expect(selectTrack).toHaveBeenCalledOnce()
+        StudioPreferences.settings.timeline["click-to-seek"] = true
+        pointer("pointerdown")
+        pointer("pointerup")
+        expect(seek).toHaveBeenCalledExactlyOnceWith(40)
+        subscription.terminate()
+    })
     it("seeks in local timeline coordinates after an ordinary click", () => {
         const {pointer, seek, subscription} = setup()
         pointer("pointerdown")

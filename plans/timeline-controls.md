@@ -144,3 +144,10 @@ Violet deployment `a582041d-1765-447e-89eb-b9a1ba45a173`, source `ee4af069d`, su
 ## Rebase onto latest grouping base (2026-10-24)
 
 Rebased onto origin/codex/track-groups-upstream at 74ae96a1f, including the latest timeline/mixer group drop feedback and expanded-header targeting fixes. All 30 feature commits replayed without conflicts; git range-diff confirms identical patches. Rollback branch: codex/timeline-controls-before-rebase-2026-10-24. Studio type checking, whitespace checks, production build, and 148 tests across 32 files pass. The hosted preview remains the previous deployment; this rebase does not publish a new build.
+
+
+## Palette and seeking preference review follow-up
+
+Remove the added Violet hue and retain the original six shared track/clip colors. Keep 14 px swatches and text alignment; distribute extra menu-row width between swatches with space-between (minimum 10 px gaps).
+
+Preferences > Studio UI > Timeline includes Click anywhere in timeline or editor to move playhead. It defaults to enabled, including migration of old preferences, and uses the existing persistent preferences store. The shared click observer reads it on each release, covering arrangement, editor and Markers while preserving track selection and ruler seeking. Pinch zoom is independent. Regression checks cover live disabling/re-enabling, retained selection and editor pinch, and migration of missing/explicit-false settings.

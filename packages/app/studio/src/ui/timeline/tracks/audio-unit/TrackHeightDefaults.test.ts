@@ -37,8 +37,11 @@ describe("new track height defaults", () => {
             markers: false, tempo: true, signature: false, clips: true, "follow-cursor": false
         }})
         expect(settings.timeline["default-track-height"]).toBe(48)
+        expect(settings.timeline["click-to-seek"]).toBe(true)
         expect(settings.timeline.markers).toBe(false)
         expect(settings.timeline.tempo).toBe(true)
+        expect(StudioSettingsSchema.parse({...settings, timeline: {...settings.timeline, "click-to-seek": false}})
+            .timeline["click-to-seek"]).toBe(false)
     })
     it("uses the latest preference for new instruments and lanes without changing existing tracks", async () => {
         const {Project, TrackHeightDefaults} = await import("@opendaw/studio-core")

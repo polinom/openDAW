@@ -32,6 +32,7 @@ export const StudioSettingsSchema = z.object({
         "signature": z.boolean(),
         "clips": z.boolean(),
         "follow-cursor": z.boolean(),
+        "click-to-seek": z.boolean().catch(true),
         "default-track-height": z.number().int().min(48).max(MaxTrackHeight).catch(48)
     }).default({
         "markers": true,
@@ -39,6 +40,7 @@ export const StudioSettingsSchema = z.object({
         "signature": false,
         "clips": true,
         "follow-cursor": false,
+        "click-to-seek": true,
         "default-track-height": 48
     }),
     "appearance": z.object({

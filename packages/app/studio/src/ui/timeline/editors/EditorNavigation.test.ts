@@ -1,6 +1,10 @@
-import {describe, expect, it, vi} from "vitest"
+import {StudioPreferences} from "@opendaw/studio-core"
+import {beforeEach, describe, expect, it, vi} from "vitest"
 import {installEditorNavigation} from "./EditorNavigation"
 import {WheelScaling} from "@/ui/timeline/WheelScaling"
+
+vi.mock("@opendaw/studio-core", () => ({StudioPreferences: {settings: {timeline: {"click-to-seek": true}}}}))
+beforeEach(() => {StudioPreferences.settings.timeline["click-to-seek"] = true})
 
 vi.mock("@opendaw/lib-dom", () => ({Events: {
     subscribe: (target: EventTarget, type: string, listener: EventListener, options?: AddEventListenerOptions) => {
@@ -34,6 +38,15 @@ const setup = (enabled = true) => {
 }
 
 describe("editor navigation", () => {
+    it("disables content seeking while retaining pinch zoom", () => {
+        const {pointer, seek, wheel, subscription} = setup()
+        StudioPreferences.settings.timeline["click-to-seek"] = false
+        pointer("pointerdown", 243)
+        pointer("pointerup", 243)
+        expect(seek).not.toHaveBeenCalled()
+        expect(wheel(true).defaultPrevented).toBe(true)
+        subscription.terminate()
+    })
     it("seeks from ruler-aligned coordinates with editor snapping", () => {
         const {pointer, seek, subscription} = setup()
         pointer("pointerdown", 243)
