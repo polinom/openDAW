@@ -137,3 +137,5 @@ Height preference deployment `8a1b6679-4e2a-48b9-a282-c5fdf9ee1232`, build `524b
 ## Violet palette color
 
 Add Violet (hue 270) alongside the existing Purple (hue 322). The shared color list supplies track Color menus and inline arrangement/launcher clip palettes, now seven swatches. Existing saved colors are unchanged. Studio type checking passes.
+
+Violet deployment `a582041d-1765-447e-89eb-b9a1ba45a173`, source `ee4af069d`, succeeded. Production build passes. Hosted arrangement palette shows all seven labeled colors, including Violet and Purple separately; every square remains 14 px. Saved fixture reopens with healthy engine telemetry. No project color edits were needed for this display check.
