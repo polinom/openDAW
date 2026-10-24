@@ -5,7 +5,10 @@ import {fileURLToPath} from "node:url"
 // alias mirrors tsconfig so tests can import app modules by their usual path.
 export default defineConfig({
     resolve: {
-        alias: {"@": fileURLToPath(new URL("./src", import.meta.url))}
+        alias: {
+            "@": fileURLToPath(new URL("./src", import.meta.url)),
+            "@opendaw/studio-adapters": fileURLToPath(new URL("../../studio/adapters/dist/index.js", import.meta.url))
+        }
     },
     test: {
         globals: true,

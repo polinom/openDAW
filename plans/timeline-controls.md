@@ -85,3 +85,10 @@ ContentEditor installs shared click seeking and capture-phase Ctrl-wheel pinch n
 Editor navigation deployment: `5df3d1d8-fd89-442b-97aa-caf72784d587`, build `800e348b-6c0a-4e92-a97c-be08b8cfec86`, source `e4c231d46`. Deployment succeeded. In the hosted note editor, grid click x889/y175 changes transport to bar002/beat3; velocity lane click x703/y252 changes it to bar001/beat3 under Smart snapping. A rectangle-selection drag leaves transport unchanged. Saved the named verification project. Engine startup remains healthy. Ctrl-wheel capture is unit-tested; physical Mac pinch, audio/value editor live navigation and audible playback remain separate manual checks.
 
 Fade length handles now render as 8 px squares rather than circles. Clip-colored fill, dark outline, hover visibility and the existing 16 px grab diameter remain. Slope diamonds are unchanged.
+
+
+## Audio split fade ownership
+
+RegionEditing.cut and the middle-section clip helper now preserve fades only at the original outer edges: the left piece keeps fade-in, the right piece keeps fade-out, and the new inner edges have zero fades. Snapshot lengths before shortening the original region: AudioRegionBoxAdapter.duration scales both fades if their sum exceeds the new duration, which otherwise changes the right piece's fade before copying. Clamp each preserved fade to its remaining piece length. Slopes stay with their respective outer fades. Duplicate behavior remains unchanged.
+
+Adapter and Studio type checks plus 129 tests across 30 files pass. Real-project regressions cover consolidated/nonconsolidated cuts, slopes, repeated/edge cuts, middle-section removal, cutting inside a fade, and Undo/Redo. Build/test/type aliases resolve the rebuilt adapter package consistently across linked dependencies.
