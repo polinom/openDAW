@@ -9,6 +9,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+      "@opendaw/studio-adapters": ["../../studio/adapters/dist/index.d.ts"],
       "@/*": [
         "./src/*"
       ]

@@ -31,7 +31,8 @@ export default defineConfig(({command}) => {
                 {find: "@", replacement: resolve(__dirname, "./src")},
                 // Engine installation and consumers must share the same core singleton,
                 // including when dependencies are linked from another checkout.
-                {find: /^@opendaw\/studio-core$/, replacement: resolve(__dirname, "../../studio/core/dist/index.js")}
+                {find: /^@opendaw\/studio-core$/, replacement: resolve(__dirname, "../../studio/core/dist/index.js")},
+                {find: /^@opendaw\/studio-adapters$/, replacement: resolve(__dirname, "../../studio/adapters/dist/index.js")}
             ]
         },
         optimizeDeps: {
