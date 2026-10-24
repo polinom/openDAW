@@ -139,3 +139,8 @@ Height preference deployment `8a1b6679-4e2a-48b9-a282-c5fdf9ee1232`, build `524b
 Add Violet (hue 270) alongside the existing Purple (hue 322). The shared color list supplies track Color menus and inline arrangement/launcher clip palettes, now seven swatches. Existing saved colors are unchanged. Studio type checking passes.
 
 Violet deployment `a582041d-1765-447e-89eb-b9a1ba45a173`, source `ee4af069d`, succeeded. Production build passes. Hosted arrangement palette shows all seven labeled colors, including Violet and Purple separately; every square remains 14 px. Saved fixture reopens with healthy engine telemetry. No project color edits were needed for this display check.
+
+
+## Rebase onto latest grouping base (2026-10-24)
+
+Rebased onto origin/codex/track-groups-upstream at 74ae96a1f, including the latest timeline/mixer group drop feedback and expanded-header targeting fixes. All 30 feature commits replayed without conflicts; git range-diff confirms identical patches. Rollback branch: codex/timeline-controls-before-rebase-2026-10-24. Studio type checking, whitespace checks, production build, and 148 tests across 32 files pass. The hosted preview remains the previous deployment; this rebase does not publish a new build.
