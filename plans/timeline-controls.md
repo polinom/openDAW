@@ -132,3 +132,8 @@ A completed track resize updates the setting; canceled drags and unmodified clic
 Core and Studio type checking plus 135 tests across 31 Studio files pass. Regression checks cover old preference migration, value normalization, new instrument/lane heights after changing the default, and preservation of existing saved heights.
 
 Height preference deployment `8a1b6679-4e2a-48b9-a282-c5fdf9ee1232`, build `524b3bd7-d1d6-4b76-8aa1-72e6cf7315d9`, source `67f471e56` succeeded. Hosted Preferences initially shows 48. Set 80, add Nano 2: new row is 80 while existing three rows remain 48. Drag its header divider from y169 to y201: actual height becomes 112; adding Neon 2 creates another 112 px row and Preferences shows 112. Saved the fixture, reloaded Preferences and verified 112 persisted. Restored the test profile preference to 48, then reopened the saved fixture: both 112 px saved tracks and three old 48 px tracks remain, with a healthy audio engine.
+
+
+## Violet palette color
+
+Add Violet (hue 270) alongside the existing Purple (hue 322). The shared color list supplies track Color menus and inline arrangement/launcher clip palettes, now seven swatches. Existing saved colors are unchanged. Studio type checking passes.
