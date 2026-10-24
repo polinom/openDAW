@@ -99,7 +99,7 @@ describe("split selected regions at playhead", () => {
         splitSelectedRegions(project, 480)
         expect(track.regions.collection.asArray().map(r => [r.position, r.duration]))
             .toEqual([[0, 480], [480, 480], [1920, 960]])
-        expect(project.regionSelection.count()).toBe(2)
+        expect(project.regionSelection.selected()).toEqual([source])
         expect(project.editing.undo()).toBe(true)
         expect(track.regions.collection.asArray().map(r => [r.position, r.duration]))
             .toEqual([[0, 960], [1920, 960]])
