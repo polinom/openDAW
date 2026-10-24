@@ -119,3 +119,5 @@ Inline palette size follow-up: reduce swatches from 24 px to 14 px, retain a 6 p
 Smaller palette deployment `702d607c-ee04-4c64-a413-dc471a5bd335`, build `4cce8ea0-057d-4795-b45f-6aaa4af778fb`, source `bad16ed51` succeeded. Production build passed. Hosted screenshot confirms six compact, left-aligned squares close to menu text height and the saved Blue selection border. This is a stylesheet-only adjustment; no new interaction tests were added.
 
 Palette alignment follow-up: align the first swatch with the default menu label column (2.25 em inset) and increase the gap from 6 px to 10 px. Square size remains 14 px.
+
+Alignment deployment `c5c5a1b8-3b2c-4daf-9b20-860988ae4533`, build `8bc87ca1-f74e-49c3-b026-2030857ead5d`, source `77fb595c9` succeeded. Production build passes. Hosted DOM measurement confirms first swatch and Delete label both start at x=645 CSS px; all six swatches are 14 px wide with 10 px gaps. Screenshot confirms the compact row and selection border.
