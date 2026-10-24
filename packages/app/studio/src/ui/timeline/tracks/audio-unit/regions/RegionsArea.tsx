@@ -1,3 +1,6 @@
+import {splitSelectedRegions} from "./splitSelectedRegions"
+import {AudioFadeHandles} from "./AudioFadeHandles"
+import {duplicateSelectedRegions} from "./duplicateSelectedRegions"
 import css from "./RegionsArea.sass?inline"
 import {TourAnchors} from "@/ui/tour/TourAnchors"
 import {firstTrackRect} from "@/ui/timeline/tracks/audio-unit/FirstTrackRect"
@@ -24,12 +27,13 @@ import {RegionContentStartModifier} from "@/ui/timeline/tracks/audio-unit/region
 import {ScrollModel} from "@/ui/components/ScrollModel.ts"
 import {RegionDragAndDrop} from "@/ui/timeline/tracks/audio-unit/regions/RegionDragAndDrop.ts"
 import {PanelType} from "@/ui/workspace/PanelType.ts"
-import {CssUtils, Dragging, Events, Html, Keyboard, ShortcutManager} from "@opendaw/lib-dom"
+import {Browser, CssUtils, Dragging, Events, Html, Keyboard, ShortcutManager} from "@opendaw/lib-dom"
 import {DragAndDrop} from "@/ui/DragAndDrop"
 import {AnyDragData} from "@/ui/AnyDragData"
 import {Dialogs} from "@/ui/components/dialogs"
 import {ClipboardManager, ElementCapturing, RegionsClipboard, TimelineRange} from "@opendaw/studio-core"
 import {RegionsShortcuts} from "@/ui/shortcuts/RegionsShortcuts"
+import {installTimelineClickSeeking} from "@/ui/timeline/TimelineClickSeeking"
 import {WheelScaling} from "@/ui/timeline/WheelScaling"
 import {moveByWheelPixels} from "@/ui/timeline/editors/WheelScroll"
 
@@ -42,7 +46,9 @@ const CursorMap = Object.freeze({
     "loop-duration": Cursor.ExpandWidth,
     "content-start": Cursor.ExpandWidth,
     "fading-in": "ew-resize",
-    "fading-out": "ew-resize"
+    "fading-out": "ew-resize",
+    "fading-in-slope": "ns-resize",
+    "fading-out-slope": "ns-resize"
 }) satisfies Record<string, CssUtils.Cursor | Cursor>
 
 type Construct = {
@@ -76,7 +82,7 @@ export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollCon
     const {audioUnitFreeze} = project
     const regionLocator = createRegionLocator(manager, range, regionSelection, audioUnitFreeze)
     const dragAndDrop = new RegionDragAndDrop(service, capturing, timeline.snapping)
-    const shortcuts = ShortcutManager.get().createContext(element, "Regions")
+    const shortcuts = ShortcutManager.get().createContext(element, "Regions", 1)
     const {engine, boxGraph, overlapResolver, timelineFocus} = project
     const clipboardHandler = RegionsClipboard.createHandler({
         getEnabled: () => !engine.isPlaying.getValue(),
@@ -92,12 +98,28 @@ export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollCon
     })
 
     lifecycle.ownAll(
+        Events.subscribe(element, "pointermove", (event: PointerEvent) =>
+            manager.regionPointer.setValue({x: event.clientX, y: event.clientY})),
+        Events.subscribe(element, "pointerleave", () => manager.regionPointer.setValue(null)),
+        installTimelineClickSeeking(element, x =>
+            engine.setPosition(snapping.round(Math.max(0, range.xToUnit(x)))), event => {
+            if (Browser.isMacOS() && event.ctrlKey) {return}
+            manager.audioUnitAtClientY(event.clientY).ifSome(unit => project.trackSelection.click(unit, event))
+        }),
         regionSelection.catchupAndSubscribe({
             onSelected: (selectable: AnyRegionBoxAdapter) => selectable.onSelected(),
             onDeselected: (selectable: AnyRegionBoxAdapter) => selectable.onDeselected()
         }),
         shortcuts,
         ClipboardManager.install(element, clipboardHandler),
+        shortcuts.register(RegionsShortcuts["split-regions"].shortcut, () => {
+            splitSelectedRegions(project)
+            return true
+        }),
+        shortcuts.register(RegionsShortcuts["duplicate-regions"].shortcut, () => {
+            duplicateSelectedRegions(project)
+            return true
+        }),
         shortcuts.register(RegionsShortcuts["select-all"].shortcut, () => {
             regionSelection.select(...manager.tracks()
                 .filter(track => !track.audioUnitBoxAdapter.mapOr(unit => audioUnitFreeze.isFrozen(unit), false))
@@ -246,7 +268,7 @@ export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollCon
             leave: () => markerPosition.setValue(null)
         }),
         Events.subscribe(element, "wheel", (event: WheelEvent) => {
-            if (event.shiftKey) {
+            if (event.ctrlKey || event.shiftKey) {
                 event.preventDefault()
                 event.stopPropagation()
                 WheelScaling.apply(element, range, event)
@@ -304,24 +326,31 @@ export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollCon
                         return manager.startRegionModifier(RegionLoopDurationModifier.create(regionSelection.selected(),
                             {project, element, snapping, pointerPulse, reference}))
                     case "fading-in":
+                    case "fading-in-slope":
+                    case "fading-out-slope":
                     case "fading-out": {
                         const audioRegion = target.region
-                        const isFadeIn = target.part === "fading-in"
-                        const {position, duration, complete, fading} = audioRegion
-                        if (event.shiftKey) {
+                        const isFadeIn = target.part === "fading-in" || target.part === "fading-in-slope"
+                        const {duration, fading} = audioRegion
+                        const diamond = target.part === "fading-in-slope" || target.part === "fading-out-slope"
+                        if (diamond || event.shiftKey) {
                             const slopeField = isFadeIn ? fading.inSlopeField : fading.outSlopeField
                             const originalSlope = slopeField.getValue()
                             const startY = event.clientY
+                            const laneHeight = manager.tracks().find(track => track.trackBoxAdapter === audioRegion.trackBoxAdapter.unwrap())?.size ?? 48
                             return Option.wrap({
                                 update: (dragEvent: Dragging.Event) => {
                                     const deltaY = startY - dragEvent.clientY
-                                    const newSlope = clamp(originalSlope + deltaY * 0.01, 0.001, 0.999)
+                                    const newSlope = diamond
+                                        ? AudioFadeHandles.slopeAfterDrag(originalSlope, -deltaY, laneHeight, isFadeIn)
+                                        : clamp(originalSlope + deltaY * 0.01, 0.001, 0.999)
                                     editing.modify(() => slopeField.setValue(newSlope), false)
                                 },
                                 approve: () => editing.mark(),
                                 cancel: () => editing.modify(() => slopeField.setValue(originalSlope))
                             } satisfies Dragging.Process)
                         }
+                        const startPointer = range.xToUnit(event.clientX - clientRect.left)
                         const originalFadeIn = fading.in
                         const originalFadeOut = fading.out
                         return Option.wrap({
@@ -329,13 +358,13 @@ export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollCon
                                 const pointerPpqn = range.xToUnit(dragEvent.clientX - clientRect.left)
                                 editing.modify(() => {
                                     if (isFadeIn) {
-                                        const newFadeIn = clamp(pointerPpqn - position, 0, duration)
+                                        const newFadeIn = clamp(originalFadeIn + pointerPpqn - startPointer, 0, duration)
                                         fading.inField.setValue(newFadeIn)
                                         if (newFadeIn + fading.out > duration) {
                                             fading.outField.setValue(duration - newFadeIn)
                                         }
                                     } else {
-                                        const newFadeOut = clamp(complete - pointerPpqn, 0, duration)
+                                        const newFadeOut = clamp(originalFadeOut + startPointer - pointerPpqn, 0, duration)
                                         fading.outField.setValue(newFadeOut)
                                         if (fading.in + newFadeOut > duration) {
                                             fading.inField.setValue(duration - newFadeOut)

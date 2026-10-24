@@ -1,3 +1,5 @@
+import {splitSelectedRegions} from "./splitSelectedRegions"
+import {duplicateSelectedRegions} from "./duplicateSelectedRegions"
 import {Editing, EmptyExec, isInstanceOf, isNull, RuntimeNotifier, Selection, Terminable} from "@opendaw/lib-std"
 import {ppqn} from "@opendaw/lib-dsp"
 import {
@@ -67,17 +69,20 @@ export const installRegionContextMenu =
             }
             const region = target.region
             addItems(
+                ColorMenu.createPalette(hue => editing.modify(() =>
+                    selection.selected().slice().forEach(adapter => adapter.box.hue.setValue(hue))),
+                    selection.selected().every(adapter => adapter.hue === region.hue) ? region.hue : undefined),
                 MenuItem.default({label: "Delete", shortcut: "⌫"})
                     .setTriggerProcedure(() => editing.modify(() => selection.selected().slice()
                         .forEach(adapter => adapter.box.delete()))),
-                MenuItem.default({label: "Duplicate"})
-                    .setTriggerProcedure(() => editing.modify(() => {
-                        project.api.duplicateRegion(region)
-                            .ifSome(duplicate => {
-                                selection.deselectAll()
-                                selection.select(duplicate)
-                            })
-                    })),
+                MenuItem.default({
+                    label: "Split at playhead",
+                    shortcut: RegionsShortcuts["split-regions"].shortcut.format(),
+                    selectable: selection.selected().some(region =>
+                        region.position < project.engine.position.getValue() && project.engine.position.getValue() < region.complete)
+                }).setTriggerProcedure(() => splitSelectedRegions(project)),
+                MenuItem.default({label: "Duplicate", shortcut: RegionsShortcuts["duplicate-regions"].shortcut.format()})
+                    .setTriggerProcedure(() => duplicateSelectedRegions(project)),
                 MenuItem.default({
                     label: "Mute",
                     checked: region.mute,
@@ -86,8 +91,6 @@ export const installRegionContextMenu =
                     const newValue = !region.mute
                     return selection.selected().slice().forEach(adapter => adapter.box.mute.setValue(newValue))
                 })),
-                ColorMenu.createItem(hue => editing.modify(() =>
-                    selection.selected().slice().forEach(adapter => adapter.box.hue.setValue(hue)))),
                 MenuItem.default({label: "Rename"})
                     .setTriggerProcedure(() => Surface.get(element).requestFloatingTextInput(client, region.label)
                         .then(value => NameValidator.validate(value, {

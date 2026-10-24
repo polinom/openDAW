@@ -63,6 +63,7 @@ export interface TrackFactory {
 }
 
 export class TracksManager implements Terminable {
+    readonly regionPointer: DefaultObservableValue<{x: number, y: number} | null>
     readonly #service: StudioService
     readonly #scrollContainer: Element
     readonly #scrollModel: ScrollModel
@@ -95,6 +96,7 @@ export class TracksManager implements Terminable {
         this.#factory = factory
 
         this.#terminator = new Terminator()
+        this.regionPointer = this.#terminator.own(new DefaultObservableValue<{x: number, y: number} | null>(null))
         this.#audioUnits = UUID.newSet(({uuid}) => uuid)
         this.#modulators = UUID.newSet(({uuid}) => uuid)
         this.#modulatorLanes = ModulatorLanes()
@@ -200,6 +202,14 @@ export class TracksManager implements Terminable {
 
     tracks(): ReadonlyArray<TrackContext> {
         return this.#flatLayout().rows.flatMap(row => row.content.kind === "track" ? [row.content.track] : [])
+    }
+
+    audioUnitAtClientY(clientY: number): Option<AudioUnitBox> {
+        const row = this.#flatLayout().rows.find(row => {
+            const rect = this.#element(row.content).getBoundingClientRect()
+            return rect.top <= clientY && clientY < rect.bottom
+        })
+        return Option.wrap(row?.unit)
     }
 
     numTracks(): int {return this.tracks().length}

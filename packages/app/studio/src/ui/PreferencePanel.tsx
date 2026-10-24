@@ -1,6 +1,6 @@
 import css from "./PreferencePanel.sass?inline"
 import {Html} from "@opendaw/lib-dom"
-import {Lifecycle, Optional} from "@opendaw/lib-std"
+import {Lifecycle, Optional, ValueGuard} from "@opendaw/lib-std"
 import {createElement, Frag} from "@opendaw/lib-jsx"
 import {Colors, IconSymbol} from "@opendaw/studio-enums"
 import {Checkbox} from "@/ui/components/Checkbox"
@@ -36,10 +36,11 @@ type Construct<ROOT_SETTINGS, SETTINGS = ROOT_SETTINGS> = {
     pathPrefix?: ReadonlyArray<string>
     labels: NestedLabels<SETTINGS>
     options?: SelectOptions<SETTINGS>
+    numberGuards?: Readonly<Record<string, ValueGuard<number>>>
 }
 
 export const PreferencePanel = <ROOT_SETTINGS, SETTINGS = ROOT_SETTINGS>(
-    {lifecycle, preferences, pathPrefix = [], labels, options}: Construct<ROOT_SETTINGS, SETTINGS>
+    {lifecycle, preferences, pathPrefix = [], labels, options, numberGuards}: Construct<ROOT_SETTINGS, SETTINGS>
 ) => {
     const settings = pathPrefix.reduce(
         (obj, key) => (obj as Record<string, unknown>)[key],
@@ -65,7 +66,8 @@ export const PreferencePanel = <ROOT_SETTINGS, SETTINGS = ROOT_SETTINGS>(
                                 preferences={preferences}
                                 pathPrefix={currentPath}
                                 labels={nestedLabels.fields}
-                                options={nestedOptions}/>
+                                options={nestedOptions}
+                                numberGuards={numberGuards}/>
                         </details>
                     )
                 }
@@ -117,7 +119,8 @@ export const PreferencePanel = <ROOT_SETTINGS, SETTINGS = ROOT_SETTINGS>(
                             <div className="number-field">
                                 <span style={{color: Colors.shadow.toString()}}>{label}</span>
                                 <hr/>
-                                <NumberInput lifecycle={lifecycle} model={createModel()} maxChars={4} className="big"/>
+                                <NumberInput lifecycle={lifecycle} model={createModel()} maxChars={4} className="big"
+                                             guard={numberGuards?.[currentPath.join(".")]}/>
                             </div>
                         )
                     }
