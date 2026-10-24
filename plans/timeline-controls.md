@@ -98,4 +98,9 @@ Split-fade deployment succeeded: `dc2763e5-4e26-4105-9f2f-94d52009d85b`, build `
 
 ## Split at playhead shortcut
 
-Arrangement-focused Cmd+E (Mac) / Ctrl+E (Windows/Linux) splits selected attached, unfrozen regions containing the current playhead. The command reads transport position once and does not snap it a second time. Both halves stay selected, existing unrelated selection remains, and all cuts share one undo transaction. Empty selections, boundary positions and nonintersecting clips are no-ops. The context menu includes Split at playhead with the shortcut. It reuses RegionEditing.cut with the same consolidation default as Option/Alt-click and preserves the split fade fix. Studio type checking and 131 tests across 30 files pass, including selected clip boundaries/placement, no-selection/edge no-ops and Undo/Redo.
+Arrangement-focused Cmd+E (Mac) / Ctrl+E (Windows/Linux) splits selected attached, unfrozen regions containing the current playhead. The command reads transport position once and does not snap it a second time. Only the original left halves stay selected, matching Option/Alt-click; existing unrelated selection remains, and all cuts share one undo transaction. Empty selections, boundary positions and nonintersecting clips are no-ops. The context menu includes Split at playhead with the shortcut. It reuses RegionEditing.cut with the same consolidation default as Option/Alt-click and preserves the split fade fix. Studio type checking and 131 tests across 30 files pass, including selected clip boundaries/placement, no-selection/edge no-ops and Undo/Redo.
+
+
+## Split selection parity and marker-lane seeking
+
+Cmd/Ctrl+E and the split menu now keep only the left/original regions selected, matching Option/Alt-click. The command no longer selects new right pieces. The Markers lane installs the shared click-release observer with timeline snapping; one ordinary click seeks at its x coordinate, including empty marker space. Marker drags, modifiers and double-click creation retain their handlers. Type checking and all 131 tests pass, including the updated explicit left-only selection regression.

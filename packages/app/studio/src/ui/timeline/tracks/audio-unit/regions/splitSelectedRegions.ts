@@ -8,7 +8,6 @@ export const splitSelectedRegions = (project: Project, position = project.engine
             .mapOr(unit => project.audioUnitFreeze.isFrozenUuid(unit.address.uuid), false))
     if (selected.length === 0) {return}
     project.editing.modify(() => {
-        const copies = selected.flatMap(region => RegionEditing.cut(region, position, true).mapOr(copy => [copy], []))
-        project.regionSelection.select(...copies)
+        selected.forEach(region => RegionEditing.cut(region, position, true))
     })
 }
