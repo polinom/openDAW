@@ -22,3 +22,5 @@ This block is written and re-added by `turbo` before repository-scoped commands 
 - RegionEditing.cut/clip keep audio fades only on original outer edges. Snapshot fade lengths before changing duration: AudioRegionBoxAdapter.duration can scale both fades, so copying afterward without the snapshot silently shortens the other piece's fade. Preserve outer slopes and clamp lengths to each remaining piece.
 
 - Default new-track height is the browser preference timeline.default-track-height (48–240 px, initial 48). TrackHeightDefaults reads/normalizes it; creation paths stamp saved TrackBox.height or AudioUnitBox.userInterface.height. Do not apply it as a live CSS fallback: existing zero/theme-default rows must retain their original height on reload. TrackResize remembers only approved drags; cancellation does not change the preference.
+
+- Grouping base cc0564033 derives membership from primary output routes; groupParent/groupChildren are removed. Rebuild local adapters/core after rebasing while keeping generated boxes and WASM matched to this schema. See plans/track-groups.md and plans/timeline-controls.md.

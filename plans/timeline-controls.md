@@ -153,3 +153,10 @@ Remove the added Violet hue and retain the original six shared track/clip colors
 Preferences > Studio UI > Timeline includes Click anywhere in timeline or editor to move playhead. It defaults to enabled, including migration of old preferences, and uses the existing persistent preferences store. The shared click observer reads it on each release, covering arrangement, editor and Markers while preserving track selection and ruler seeking. Pinch zoom is independent. Regression checks cover live disabling/re-enabling, retained selection and editor pinch, and migration of missing/explicit-false settings.
 
 Preference/palette deployment `e4cd201f-1a3d-468f-8744-e7082d06d246`, source `0aaa12374`, succeeded. Core/Studio type checks, 150 tests in 32 files and production build pass. Hosted preference initially checked; unchecked it, reloaded and verified it remained unchecked, then restored enabled. Hosted arrangement menu contains exactly Red, Orange, Yellow, Green, Blue and Purple, all 14 px wide with about 14.14 px gaps across the available text-aligned row. Saved fixture reopens with healthy engine telemetry.
+
+
+## Rebase onto routing-based grouping (2026-10-24)
+
+Rebased onto origin/codex/track-groups-upstream at cc0564033. All 33 feature commits replay without conflicts; range-diff confirms identical patches. This base derives membership from primary audio routes and removes the separate parent/child fields. The earlier explanation of independent folder membership no longer describes this version. Rollback branch: codex/timeline-controls-before-rebase-routing-2026-10-24.
+
+Recompiled local adapters/core against the current shared boxes/enums/engine artifacts. Adapter/core compilation, Studio type checking, whitespace checks, production build, 150 Studio tests (32 files), 39 core grouping tests, and the legacy route-membership adapter test pass. The Cloudflare preview remains the previously deployed build; no deployment is part of this rebase.
