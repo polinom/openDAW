@@ -36,8 +36,13 @@ export namespace AudioFadeHandles {
         ]
     }
 
-    export const slopeAfterDrag = (original: number, deltaY: number, height: number, fadeIn: boolean): number =>
-        clamp(original + (fadeIn ? -deltaY : deltaY) / Math.max(1, height - RegionLabel.labelHeight() - 1), 0.001, 0.999)
+    export const slopeAfterDrag = (original: number, deltaX: number, deltaY: number,
+                                   width: number, height: number, fadeIn: boolean): number => {
+        const vertical = (fadeIn ? -deltaY : deltaY) / Math.max(1, height - RegionLabel.labelHeight() - 1)
+        // Moving right delays the transition; keep short fades comfortable to drag.
+        const horizontal = -deltaX / Math.max(24, width)
+        return clamp(original + horizontal + vertical, 0.001, 0.999)
+    }
 
     export const render = (context: CanvasRenderingContext2D, range: TimelineRange,
                            fading: FadingEnvelope.Config, start: number, end: number, color: string): void => {

@@ -204,3 +204,10 @@ Dragging a zero-length fade into the clip now starts at slope 0.5, the linear am
 Studio type checking, production build, all 280 Studio tests (43 files), and 15 focused fade tests pass. The new tests use approximate comparisons for Float32-stored slopes. Visual/audio fade dragging remains a manual browser check; gain shape, cancellation and history are verified on real project graphs.
 
 Linear-fade preview deployment f6be0991-a3cf-4d4b-9e2e-886b448864a6 succeeded: source 2d77b5644, build cf5ed1d1-1385-4a97-b75a-be72d17d2027. The stable alias serves matching build-info metadata.
+
+
+## Two-axis fade easing drag (2026-10-28)
+
+Diamond handles accept horizontal and vertical displacement together. Rightward movement delays the fade transition; vertical movement retains its existing fade-in/fade-out direction. Horizontal change is normalized to the rendered fade width, including overlap scaling; a 24 px minimum denominator keeps tiny fades usable. Both directions change the existing slope only, without changing fade length or schema. Cursor uses move rather than vertical resize. Shift-drag retains its original vertical gesture; Undo and cancel keep the original slope snapshot. Tests cover horizontal reversal, zoom scaling, diagonals, short/zero-width bounds and both fade directions.
+
+Studio type checking, all 283 Studio tests (43 files), production build and whitespace checks pass. Physical two-axis audio fade dragging remains a manual browser check.

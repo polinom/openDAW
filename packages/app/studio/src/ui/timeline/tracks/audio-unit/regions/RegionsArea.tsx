@@ -48,8 +48,8 @@ const CursorMap = Object.freeze({
     "content-start": Cursor.ExpandWidth,
     "fading-in": "ew-resize",
     "fading-out": "ew-resize",
-    "fading-in-slope": "ns-resize",
-    "fading-out-slope": "ns-resize"
+    "fading-in-slope": "move",
+    "fading-out-slope": "move"
 }) satisfies Record<string, CssUtils.Cursor | Cursor>
 
 type Construct = {
@@ -338,13 +338,18 @@ export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollCon
                         if (diamond || event.shiftKey) {
                             const slopeField = isFadeIn ? fading.inSlopeField : fading.outSlopeField
                             const originalSlope = slopeField.getValue()
-                            const startY = event.clientY
+                            const startX = event.clientX, startY = event.clientY
+                            const scale = fading.in + fading.out > duration ? duration / (fading.in + fading.out) : 1
+                            const fadeLength = (isFadeIn ? fading.in : fading.out) * scale
+                            const fadeWidth = Math.abs(range.unitToX(audioRegion.position + fadeLength)
+                                - range.unitToX(audioRegion.position))
                             const laneHeight = manager.tracks().find(track => track.trackBoxAdapter === audioRegion.trackBoxAdapter.unwrap())?.size ?? 48
                             return Option.wrap({
                                 update: (dragEvent: Dragging.Event) => {
                                     const deltaY = startY - dragEvent.clientY
                                     const newSlope = diamond
-                                        ? AudioFadeHandles.slopeAfterDrag(originalSlope, -deltaY, laneHeight, isFadeIn)
+                                        ? AudioFadeHandles.slopeAfterDrag(originalSlope, dragEvent.clientX - startX,
+                                            -deltaY, fadeWidth, laneHeight, isFadeIn)
                                         : clamp(originalSlope + deltaY * 0.01, 0.001, 0.999)
                                     editing.modify(() => slopeField.setValue(newSlope), false)
                                 },

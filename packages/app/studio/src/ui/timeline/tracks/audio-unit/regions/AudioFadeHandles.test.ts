@@ -27,11 +27,23 @@ describe("visible audio fade handles", () => {
         expect(handles[1].y).toBeCloseTo(45)
     })
     it("moves each curve midpoint with the vertical drag", () => {
-        expect(AudioFadeHandles.slopeAfterDrag(0.5, 10, 55, true)).toBe(0.25)
-        expect(AudioFadeHandles.slopeAfterDrag(0.5, 10, 55, false)).toBe(0.75)
-        expect(AudioFadeHandles.slopeAfterDrag(0.5, 0, 55, true)).toBe(0.5)
-        expect(AudioFadeHandles.slopeAfterDrag(0.5, -1000, 55, true)).toBe(0.999)
-        expect(AudioFadeHandles.slopeAfterDrag(0.5, -1000, 55, false)).toBe(0.001)
+        expect(AudioFadeHandles.slopeAfterDrag(0.5, 0, 10, 100, 55, true)).toBe(0.25)
+        expect(AudioFadeHandles.slopeAfterDrag(0.5, 0, 10, 100, 55, false)).toBe(0.75)
+        expect(AudioFadeHandles.slopeAfterDrag(0.5, 0, 0, 100, 55, true)).toBe(0.5)
+        expect(AudioFadeHandles.slopeAfterDrag(0.5, 0, -1000, 100, 55, true)).toBe(0.999)
+        expect(AudioFadeHandles.slopeAfterDrag(0.5, 0, -1000, 100, 55, false)).toBe(0.001)
     })
 
+    it.each([true, false])("adjusts curvature horizontally in both directions, fadeIn=%s", fadeIn => {
+        expect(AudioFadeHandles.slopeAfterDrag(0.5, 25, 0, 100, 55, fadeIn)).toBe(0.25)
+        expect(AudioFadeHandles.slopeAfterDrag(0.5, -25, 0, 100, 55, fadeIn)).toBe(0.75)
+        expect(AudioFadeHandles.slopeAfterDrag(0.5, 50, 0, 200, 55, fadeIn)).toBe(0.25)
+    })
+    it("combines diagonal movement and bounds short or zero-width fades", () => {
+        expect(AudioFadeHandles.slopeAfterDrag(0.5, 10, 4, 100, 55, true)).toBeCloseTo(0.3)
+        expect(AudioFadeHandles.slopeAfterDrag(0.5, -10, 4, 100, 55, false)).toBeCloseTo(0.7)
+        expect(AudioFadeHandles.slopeAfterDrag(0.5, 6, 0, 0, 55, true)).toBe(0.25)
+        expect(AudioFadeHandles.slopeAfterDrag(0.5, 1000, 0, 1, 55, true)).toBe(0.001)
+        expect(AudioFadeHandles.slopeAfterDrag(0.5, -1000, 0, 1, 55, false)).toBe(0.999)
+    })
 })

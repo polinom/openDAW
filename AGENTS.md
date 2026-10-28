@@ -34,3 +34,5 @@ This block is written and re-added by `turbo` before repository-scoped commands 
 - Track height has no visible Preferences control. The internal timeline.default-track-height state persists the last completed resize (initial 48 px) for future tracks. Keep that state when removing UI labels so existing remembered heights survive.
 
 - AudioFadeLengthDrag initializes a fade pulled from zero length to slope 0.5 (linear amplitude), without changing saved nonzero fade shapes or box schema defaults. Preserve both slopes and lengths on cancel/Undo. Diamond and Shift-drag still edit curves.
+
+- Fade diamonds accept two-axis movement via AudioFadeHandles.slopeAfterDrag. Scale horizontal movement by rendered fade width (including overlap scale, minimum 24 px); retain vertical direction per fade side. Both axes edit only slope; original snapshot drives Undo/cancel.
