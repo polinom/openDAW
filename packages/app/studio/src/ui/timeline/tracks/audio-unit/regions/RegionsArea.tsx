@@ -144,6 +144,7 @@ export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollCon
         shortcuts.register(RegionsShortcuts["snapping-coarser"].shortcut, () => snapping.stepCoarser(), {allowRepeat: true}),
         installRegionContextMenu({timelineBox, element, service, capturing, selection: regionSelection, range}),
         Events.subscribe(element, "pointerdown", (event: PointerEvent) => {
+            if (!Events.isTextInput(event.target)) {element.focus({preventScroll: true})}
             const target = capturing.captureEvent(event)
             timelineFocus.clear()
             if (target === null) {return}

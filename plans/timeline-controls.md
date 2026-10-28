@@ -169,3 +169,8 @@ Replayed only the 34 timeline follow-up commits from old base cc0564033 onto rew
 The partially cleared /private/tmp checkout was replaced with managed worktree /Users/igor/.codex/worktrees/timeline-rebase/openDaw. It uses existing shared dependencies and base package artifacts, with local compiled adapters/core and generated workers/processors. Adapter exports must be generated before compilation in a fresh checkout. Adapter/core compilation, Studio type checking, whitespace checks, all 272 Studio tests (43 files), and 39 focused core grouping tests pass.
 
 Production build also passes after generating the local worker and processor bundles. Preview was not redeployed as part of this rebase.
+
+
+## Region clipboard port (2026-10-28)
+
+Ported the region clipboard focus and immediate paused-position fix, with its regressions, from b056afd3b. Only the six code/test files were applied; checkout-specific notes were excluded. See plans/region-clipboard.md. Core/Studio type checks, 140 focused clipboard/engine tests and all 272 Studio tests pass; production build passes. No current-branch browser validation or preview deployment is claimed.

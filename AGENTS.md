@@ -26,3 +26,5 @@ This block is written and re-added by `turbo` before repository-scoped commands 
 - Grouping base cc0564033 derives membership from primary output routes; groupParent/groupChildren are removed. Rebuild local adapters/core after rebasing while keeping generated boxes and WASM matched to this schema. See plans/track-groups.md and plans/timeline-controls.md.
 
 - Timeline-controls now uses managed worktree /Users/igor/.codex/worktrees/timeline-rebase/openDaw after the temporary checkout was partly cleared. On the rewritten grouping base, PreferencePanel must retain both dropdowns and numberGuards through recursive panels. Generate adapters exports before compiling a fresh checkout; worker/processor bundles are separate from core tsc.
+
+- Clipboard Copy/Cut must use the nearest focused registered editor rather than a parent track handler. Paste can use a compatible ancestor. RegionsArea focuses on pointerdown, and paused EngineFacade seeks publish the insertion position before worklet acknowledgment. See plans/region-clipboard.md.
