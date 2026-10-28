@@ -32,3 +32,5 @@ This block is written and re-added by `turbo` before repository-scoped commands 
 - Content click seeking (arrangement, editor and Markers) requires stopped transport on both press and release. Pass the live engine predicate through TimelineClickSeeking/EditorNavigation; do not gate track selection or pinch zoom with it. Ruler seeking is separate.
 
 - Track height has no visible Preferences control. The internal timeline.default-track-height state persists the last completed resize (initial 48 px) for future tracks. Keep that state when removing UI labels so existing remembered heights survive.
+
+- AudioFadeLengthDrag initializes a fade pulled from zero length to slope 0.5 (linear amplitude), without changing saved nonzero fade shapes or box schema defaults. Preserve both slopes and lengths on cancel/Undo. Diamond and Shift-drag still edit curves.

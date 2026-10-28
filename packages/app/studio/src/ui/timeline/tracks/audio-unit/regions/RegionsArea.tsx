@@ -1,3 +1,4 @@
+import {createAudioFadeLengthDrag} from "./AudioFadeLengthDrag"
 import {splitSelectedRegions} from "./splitSelectedRegions"
 import {AudioFadeHandles} from "./AudioFadeHandles"
 import {duplicateSelectedRegions} from "./duplicateSelectedRegions"
@@ -352,32 +353,11 @@ export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollCon
                             } satisfies Dragging.Process)
                         }
                         const startPointer = range.xToUnit(event.clientX - clientRect.left)
-                        const originalFadeIn = fading.in
-                        const originalFadeOut = fading.out
+                        const drag = createAudioFadeLengthDrag(fading, duration, isFadeIn, startPointer, editing)
                         return Option.wrap({
-                            update: (dragEvent: Dragging.Event) => {
-                                const pointerPpqn = range.xToUnit(dragEvent.clientX - clientRect.left)
-                                editing.modify(() => {
-                                    if (isFadeIn) {
-                                        const newFadeIn = clamp(originalFadeIn + pointerPpqn - startPointer, 0, duration)
-                                        fading.inField.setValue(newFadeIn)
-                                        if (newFadeIn + fading.out > duration) {
-                                            fading.outField.setValue(duration - newFadeIn)
-                                        }
-                                    } else {
-                                        const newFadeOut = clamp(originalFadeOut + startPointer - pointerPpqn, 0, duration)
-                                        fading.outField.setValue(newFadeOut)
-                                        if (fading.in + newFadeOut > duration) {
-                                            fading.inField.setValue(duration - newFadeOut)
-                                        }
-                                    }
-                                }, false)
-                            },
-                            approve: () => editing.mark(),
-                            cancel: () => editing.modify(() => {
-                                fading.inField.setValue(originalFadeIn)
-                                fading.outField.setValue(originalFadeOut)
-                            })
+                            ...drag,
+                            update: (dragEvent: Dragging.Event) =>
+                                drag.update(range.xToUnit(dragEvent.clientX - clientRect.left))
                         } satisfies Dragging.Process)
                     }
                     default: {

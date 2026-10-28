@@ -195,3 +195,10 @@ Remove Default track height (px) from Preferences. The internal saved timeline.d
 Core compilation, Studio type checking, all 276 Studio tests (43 files), production build and whitespace checks pass after hiding the height control. Existing new-track height regressions still verify inherited height and preservation of older saved tracks.
 
 Hidden-height deployment 3706b199-3b18-4df3-a9a3-40dc1e8f50e9 succeeded: source 82ccd5994, build 55656513-2a79-4591-8c70-604e81911049. Hosted Preferences shows click-to-seek and no Default track height control. In the saved test fixture, resizing Nano 2 from 112 to 144 px makes a new Audio Track 144 px; older rows remain 48/112 px. Save/dashboard/reopen retains both 144 px tracks and older heights.
+
+
+## Straight new fades (2026-10-28)
+
+Dragging a zero-length fade into the clip now starts at slope 0.5, the linear amplitude curve. The diamond/Shift slope controls remain available. Length edits of existing nonzero fades retain their saved slope. Extract the length drag transaction into AudioFadeLengthDrag to keep length/shape in one Undo step and restore both slopes and lengths on cancellation. Returning a new fade to zero during the drag restores its original hidden slope. No schema defaults or DSP changes, so existing saved fades are unchanged until edited. Real-project tests check quarter/mid/three-quarter gain, both fade directions, Undo/Redo and cancel/overlap preservation.
+
+Studio type checking, production build, all 280 Studio tests (43 files), and 15 focused fade tests pass. The new tests use approximate comparisons for Float32-stored slopes. Visual/audio fade dragging remains a manual browser check; gain shape, cancellation and history are verified on real project graphs.

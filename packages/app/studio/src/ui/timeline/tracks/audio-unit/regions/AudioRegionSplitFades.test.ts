@@ -1,8 +1,9 @@
+import {createAudioFadeLengthDrag} from "./AudioFadeLengthDrag"
 import {describe, expect, it} from "vitest"
 import {isDefined, Option, Terminable, UUID} from "@opendaw/lib-std"
 import {AudioRegionBoxAdapter, ProjectSkeleton, RegionEditing, TrackBoxAdapter, TrackType} from "@opendaw/studio-adapters"
 import {AudioFileBox, AudioRegionBox, TrackBox, ValueEventCollectionBox} from "@opendaw/studio-boxes"
-import {TimeBase} from "@opendaw/lib-dsp"
+import {FadingEnvelope, TimeBase} from "@opendaw/lib-dsp"
 import type {ProjectEnv} from "@opendaw/studio-core"
 
 if (!isDefined(Reflect.get(globalThis, "AudioWorkletNode"))) {
@@ -96,4 +97,49 @@ describe("audio split outer fades", () => {
         project.terminate()
     })
 
+})
+
+
+describe("new fade length drags", () => {
+    it.each([true, false])("starts a new fade as a straight line with Undo/Redo, fadeIn=%s", async fadeIn => {
+        const {project, left} = await setup()
+        project.editing.modify(() => {
+            left.fading.inField.setValue(0)
+            left.fading.outField.setValue(0)
+        })
+        const drag = createAudioFadeLengthDrag(left.fading, left.duration, fadeIn, 0, project.editing)
+        drag.update(fadeIn ? 960 : -960)
+        drag.approve()
+        expect(fadeIn ? left.fading.inSlope : left.fading.outSlope).toBe(0.5)
+        for (const fraction of [0.25, 0.5, 0.75]) {
+            const position = fadeIn ? 960 * fraction : left.duration - 960 + 960 * fraction
+            expect(FadingEnvelope.gainAt(position, left.duration, left.fading))
+                .toBeCloseTo(fadeIn ? fraction : 1 - fraction)
+        }
+        project.editing.undo()
+        expect(fades(left)).toEqual([0, 0])
+        expect(left.fading.inSlope).toBeCloseTo(0.7)
+        expect(left.fading.outSlope).toBeCloseTo(0.3)
+        project.editing.redo()
+        expect(fadeIn ? left.fading.in : left.fading.out).toBe(960)
+        expect(fadeIn ? left.fading.inSlope : left.fading.outSlope).toBe(0.5)
+        project.terminate()
+    })
+    it.each([true, false])("preserves existing curved fades and restores canceled drags, fadeIn=%s", async fadeIn => {
+        const {project, left} = await setup()
+        const drag = createAudioFadeLengthDrag(left.fading, left.duration, fadeIn, 0, project.editing)
+        drag.update(fadeIn ? 3000 : -3000)
+        expect(left.fading.inSlope).toBeCloseTo(0.7)
+        expect(left.fading.outSlope).toBeCloseTo(0.3)
+        drag.cancel()
+        expect(fades(left)).toEqual([480, 960])
+        project.editing.modify(() => (fadeIn ? left.fading.inField : left.fading.outField).setValue(0))
+        const fresh = createAudioFadeLengthDrag(left.fading, left.duration, fadeIn, 0, project.editing)
+        fresh.update(fadeIn ? 960 : -960)
+        fresh.cancel()
+        expect(fades(left)).toEqual(fadeIn ? [0, 960] : [480, 0])
+        expect(left.fading.inSlope).toBeCloseTo(0.7)
+        expect(left.fading.outSlope).toBeCloseTo(0.3)
+        project.terminate()
+    })
 })
