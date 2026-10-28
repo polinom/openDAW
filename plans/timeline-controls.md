@@ -160,3 +160,12 @@ Preference/palette deployment `e4cd201f-1a3d-468f-8744-e7082d06d246`, source `0a
 Rebased onto origin/codex/track-groups-upstream at cc0564033. All 33 feature commits replay without conflicts; range-diff confirms identical patches. This base derives membership from primary audio routes and removes the separate parent/child fields. The earlier explanation of independent folder membership no longer describes this version. Rollback branch: codex/timeline-controls-before-rebase-routing-2026-10-24.
 
 Recompiled local adapters/core against the current shared boxes/enums/engine artifacts. Adapter/core compilation, Studio type checking, whitespace checks, production build, 150 Studio tests (32 files), 39 core grouping tests, and the legacy route-membership adapter test pass. The Cloudflare preview remains the previously deployed build; no deployment is part of this rebase.
+
+
+## Rebase after grouping history rewrite (2026-10-28)
+
+Replayed only the 34 timeline follow-up commits from old base cc0564033 onto rewritten grouping head 3bf40ab0a, using rebase --onto rather than replaying old grouping commits. Backup: codex/timeline-controls-before-rebase-2026-10-28. One conflict in PreferencePanel.tsx combined upstream dropdown support with our numeric guards, including recursive propagation of both props. Range-diff confirms the other contextual changes retain the new contentLoops naming and launcher context-menu arguments.
+
+The partially cleared /private/tmp checkout was replaced with managed worktree /Users/igor/.codex/worktrees/timeline-rebase/openDaw. It uses existing shared dependencies and base package artifacts, with local compiled adapters/core and generated workers/processors. Adapter exports must be generated before compilation in a fresh checkout. Adapter/core compilation, Studio type checking, whitespace checks, all 272 Studio tests (43 files), and 39 focused core grouping tests pass.
+
+Production build also passes after generating the local worker and processor bundles. Preview was not redeployed as part of this rebase.

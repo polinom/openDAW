@@ -24,3 +24,5 @@ This block is written and re-added by `turbo` before repository-scoped commands 
 - Default new-track height is the browser preference timeline.default-track-height (48–240 px, initial 48). TrackHeightDefaults reads/normalizes it; creation paths stamp saved TrackBox.height or AudioUnitBox.userInterface.height. Do not apply it as a live CSS fallback: existing zero/theme-default rows must retain their original height on reload. TrackResize remembers only approved drags; cancellation does not change the preference.
 
 - Grouping base cc0564033 derives membership from primary output routes; groupParent/groupChildren are removed. Rebuild local adapters/core after rebasing while keeping generated boxes and WASM matched to this schema. See plans/track-groups.md and plans/timeline-controls.md.
+
+- Timeline-controls now uses managed worktree /Users/igor/.codex/worktrees/timeline-rebase/openDaw after the temporary checkout was partly cleared. On the rewritten grouping base, PreferencePanel must retain both dropdowns and numberGuards through recursive panels. Generate adapters exports before compiling a fresh checkout; worker/processor bundles are separate from core tsc.
