@@ -186,3 +186,10 @@ Studio type checking, all 276 Studio tests across 43 files, production build and
 ## Latest testing preview (2026-10-28)
 
 Deployed source f5dd44c88, build 0ac1c507-94cb-4696-a532-b7ee3be34a21, deployment 2962e07d-de74-45a1-a9b7-188ba3f9ce82 to the stable timeline-controls Pages alias. HTTPS and isolation headers verified. Browser loaded this exact main bundle and reopened the saved Cloudflare preview verification fixture with healthy engine telemetry. Stopped click moved transport to bar 5. During confirmed playback a distant track click selected that track without seeking backward; transport continued to bar 11. Cmd+C reported Region copied to clipboard; clicking Nano 2 at bar 4 and Cmd+V created a region there while retaining the source and existing tracks. Save/dashboard/reopen retained the pasted region. This verifies native macOS Cmd clipboard use; physical pinch and audible sample/fade checks remain manual.
+
+
+## Hide manual height preference, retain automatic memory (2026-10-28)
+
+Remove Default track height (px) from Preferences. The internal saved timeline.default-track-height value remains so existing remembered values survive; completed track resizing still updates it and new tracks use it. Initial height stays 48 px. Existing track heights, cancel/reset rules and persistence are unchanged. Preference labels may omit internal persisted fields. Remove unused numeric guard wiring from PreferencePanel while retaining upstream dropdown controls. This supersedes the earlier visible height-control design.
+
+Core compilation, Studio type checking, all 276 Studio tests (43 files), production build and whitespace checks pass after hiding the height control. Existing new-track height regressions still verify inherited height and preservation of older saved tracks.

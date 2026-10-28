@@ -7,6 +7,7 @@ export namespace TrackHeightDefaults {
     export const minimum = 48
     export const normalize = (value: number): number =>
         Number.isFinite(value) ? clamp(Math.round(value), minimum, MaxTrackHeight) : minimum
+    // Internal persisted state: only completed track resizing changes the remembered height.
     export const get = (): number => normalize(StudioPreferences.settings.timeline["default-track-height"])
     export const remember = (height: number): void => {
         StudioPreferences.settings.timeline["default-track-height"] = normalize(height)
