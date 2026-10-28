@@ -1,3 +1,4 @@
+import {createAudioFadeCurveDrag, readFadeCurvePositions} from "./AudioFadeCurveDrag"
 import {createAudioFadeLengthDrag} from "./AudioFadeLengthDrag"
 import {describe, expect, it} from "vitest"
 import {isDefined, Option, Terminable, UUID} from "@opendaw/lib-std"
@@ -140,6 +141,54 @@ describe("new fade length drags", () => {
         expect(fades(left)).toEqual(fadeIn ? [0, 960] : [480, 0])
         expect(left.fading.inSlope).toBeCloseTo(0.7)
         expect(left.fading.outSlope).toBeCloseTo(0.3)
+        project.terminate()
+    })
+})
+
+
+describe("movable fade curve points", () => {
+    it.each([true, false])("saves both coordinates, restores Undo/Redo and cancels the next drag, fadeIn=%s", async fadeIn => {
+        const {project, left} = await setup()
+        project.editing.modify(() => {
+            left.fading.inSlopeField.setValue(0.5)
+            left.fading.outSlopeField.setValue(0.5)
+        })
+        const originalLengths = fades(left)
+        const drag = createAudioFadeCurveDrag(left, fadeIn, 100, 55, project.editing)
+        drag.update(20, 8)
+        drag.approve()
+        const key = fadeIn ? "in" : "out"
+        const slope = fadeIn ? left.fading.inSlope : left.fading.outSlope
+        expect(readFadeCurvePositions(left.box)[key]).toBeCloseTo(0.7)
+        expect(fades(left)).toEqual(originalLengths)
+        const loaded = ProjectSkeleton.decode(ProjectSkeleton.encode(project.boxGraph))
+        const loadedBox = loaded.boxGraph.findBox(left.box.address.uuid).unwrap() as AudioRegionBox
+        expect(readFadeCurvePositions(loadedBox)[key]).toBeCloseTo(0.7)
+        expect(fadeIn ? loadedBox.fading.inSlope.getValue() : loadedBox.fading.outSlope.getValue()).toBe(slope)
+        project.editing.undo()
+        expect(readFadeCurvePositions(left.box)).toEqual({in: 0.5, out: 0.5})
+        expect(fadeIn ? left.fading.inSlope : left.fading.outSlope).toBe(0.5)
+        project.editing.redo()
+        expect(readFadeCurvePositions(left.box)[key]).toBeCloseTo(0.7)
+        const next = createAudioFadeCurveDrag(left, fadeIn, 100, 55, project.editing)
+        next.update(-10, -4)
+        next.cancel()
+        expect(readFadeCurvePositions(left.box)[key]).toBeCloseTo(0.7)
+        expect(fadeIn ? left.fading.inSlope : left.fading.outSlope).toBe(slope)
+        project.terminate()
+    })
+    it("does not create metadata on an unmodified click and cancels the first drag cleanly", async () => {
+        const {project, left} = await setup()
+        const boxCount = project.boxGraph.boxes().length
+        const slope = left.fading.inSlope
+        const drag = createAudioFadeCurveDrag(left, true, 100, 55, project.editing)
+        drag.update(0, 0)
+        expect(project.boxGraph.boxes()).toHaveLength(boxCount)
+        drag.update(10, 5)
+        drag.cancel()
+        expect(readFadeCurvePositions(left.box)).toEqual({in: 0.5, out: 0.5})
+        expect(left.fading.inSlope).toBe(slope)
+        expect(project.boxGraph.boxes()).toHaveLength(boxCount)
         project.terminate()
     })
 })

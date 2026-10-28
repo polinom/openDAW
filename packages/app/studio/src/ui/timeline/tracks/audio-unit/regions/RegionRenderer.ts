@@ -1,3 +1,4 @@
+import {readFadeCurvePositions} from "./AudioFadeCurveDrag"
 import {AudioFadeHandles} from "./AudioFadeHandles"
 import {int, isInstanceOf, Iterables, Option, unitValue} from "@opendaw/lib-std"
 import {LoopableRegion, ValueEvent} from "@opendaw/lib-dsp"
@@ -144,7 +145,7 @@ export namespace RegionRenderer {
                 }
                 if (isInstanceOf(region, AudioRegionBoxAdapter)
                     && hoverUnit !== null && hoverUnit >= position && hoverUnit < complete) {
-                    AudioFadeHandles.render(context, range, region.fading, position, complete, contentColor)
+                    AudioFadeHandles.render(context, range, region.fading, position, complete, contentColor, readFadeCurvePositions(region.box))
                 }
                 if (selected) {
                     context.fillStyle = labelBackground

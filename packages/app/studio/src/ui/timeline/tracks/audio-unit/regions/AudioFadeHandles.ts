@@ -21,31 +21,39 @@ export namespace AudioFadeHandles {
     }
 
     export const slopeHandles = (range: Pick<TimelineRange, "unitToX">,
-                                 fading: FadingEnvelope.Config, start: number, end: number, height: number) => {
+                                 fading: FadingEnvelope.Config, start: number, end: number, height: number,
+                                 anchors = {in: 0.5, out: 0.5}) => {
         const duration = Math.max(0, end - start)
         const scale = fading.in + fading.out > duration ? duration / (fading.in + fading.out) : 1
         const top = RegionLabel.labelHeight() + 1
         const bottom = height
         return [
             ...(fading.in > 0 ? [{part: "fading-in-slope" as const,
-                x: range.unitToX(start + fading.in * scale / 2),
-                y: bottom + Curve.normalizedAt(0.5, fading.inSlope) * (top - bottom)}] : []),
+                x: range.unitToX(start + fading.in * scale * anchors.in),
+                y: bottom + Curve.normalizedAt(anchors.in, fading.inSlope) * (top - bottom)}] : []),
             ...(fading.out > 0 ? [{part: "fading-out-slope" as const,
-                x: range.unitToX(end - fading.out * scale / 2),
-                y: top + Curve.normalizedAt(0.5, fading.outSlope) * (bottom - top)}] : [])
+                x: range.unitToX(end - fading.out * scale * (1 - anchors.out)),
+                y: top + Curve.normalizedAt(anchors.out, fading.outSlope) * (bottom - top)}] : [])
         ]
     }
 
-    export const slopeAfterDrag = (original: number, deltaX: number, deltaY: number,
-                                   width: number, height: number, fadeIn: boolean): number => {
-        const vertical = (fadeIn ? -deltaY : deltaY) / Math.max(1, height - RegionLabel.labelHeight() - 1)
-        // Moving right delays the transition; keep short fades comfortable to drag.
-        const horizontal = -deltaX / Math.max(24, width)
-        return clamp(original + horizontal + vertical, 0.001, 0.999)
+    export const curveAfterDrag = (originalSlope: number, originalPosition: number,
+                                   deltaX: number, deltaY: number, width: number, height: number, fadeIn: boolean) => {
+        const position = clamp(originalPosition + deltaX / Math.max(1, width), 0.02, 0.98)
+        const target = clamp(Curve.normalizedAt(originalPosition, originalSlope)
+            + (fadeIn ? -deltaY : deltaY) / Math.max(1, height - RegionLabel.labelHeight() - 1), 0, 1)
+        // Fit the existing audible curve through the dragged point, rather than adding X to a Y-only delta.
+        let low = 0.001, high = 0.999
+        for (let i = 0; i < 28; i++) {
+            const middle = (low + high) / 2
+            if (Curve.normalizedAt(position, middle) < target) {low = middle} else {high = middle}
+        }
+        return {position, slope: (low + high) / 2}
     }
 
     export const render = (context: CanvasRenderingContext2D, range: TimelineRange,
-                           fading: FadingEnvelope.Config, start: number, end: number, color: string): void => {
+                           fading: FadingEnvelope.Config, start: number, end: number, color: string,
+                           anchors = {in: 0.5, out: 0.5}): void => {
         const {inX, outX} = positions(range, fading, start, end)
         const dpr = devicePixelRatio
         context.save()
@@ -58,7 +66,7 @@ export namespace AudioFadeHandles {
             context.fill()
             context.stroke()
         }
-        for (const {x, y} of slopeHandles(range, fading, start, end, context.canvas.clientHeight)) {
+        for (const {x, y} of slopeHandles(range, fading, start, end, context.canvas.clientHeight, anchors)) {
             context.beginPath()
             context.moveTo(x * dpr, (y - radius) * dpr)
             context.lineTo((x + radius) * dpr, y * dpr)

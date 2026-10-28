@@ -1,6 +1,6 @@
+import {createAudioFadeCurveDrag} from "./AudioFadeCurveDrag"
 import {createAudioFadeLengthDrag} from "./AudioFadeLengthDrag"
 import {splitSelectedRegions} from "./splitSelectedRegions"
-import {AudioFadeHandles} from "./AudioFadeHandles"
 import {duplicateSelectedRegions} from "./duplicateSelectedRegions"
 import css from "./RegionsArea.sass?inline"
 import {TourAnchors} from "@/ui/tour/TourAnchors"
@@ -344,13 +344,24 @@ export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollCon
                             const fadeWidth = Math.abs(range.unitToX(audioRegion.position + fadeLength)
                                 - range.unitToX(audioRegion.position))
                             const laneHeight = manager.tracks().find(track => track.trackBoxAdapter === audioRegion.trackBoxAdapter.unwrap())?.size ?? 48
+                            if (diamond) {
+                                const drag = createAudioFadeCurveDrag(audioRegion, isFadeIn, fadeWidth, laneHeight, editing)
+                                return Option.wrap({
+                                    ...drag,
+                                    update: (dragEvent: Dragging.Event) => {
+                                        drag.update(dragEvent.clientX - startX, dragEvent.clientY - startY)
+                                        manager.regionPointer.setValue({x: dragEvent.clientX, y: dragEvent.clientY})
+                                    },
+                                    cancel: () => {
+                                        drag.cancel()
+                                        manager.regionPointer.setValue({x: startX, y: startY})
+                                    }
+                                } satisfies Dragging.Process)
+                            }
                             return Option.wrap({
                                 update: (dragEvent: Dragging.Event) => {
                                     const deltaY = startY - dragEvent.clientY
-                                    const newSlope = diamond
-                                        ? AudioFadeHandles.slopeAfterDrag(originalSlope, dragEvent.clientX - startX,
-                                            -deltaY, fadeWidth, laneHeight, isFadeIn)
-                                        : clamp(originalSlope + deltaY * 0.01, 0.001, 0.999)
+                                    const newSlope = clamp(originalSlope + deltaY * 0.01, 0.001, 0.999)
                                     editing.modify(() => slopeField.setValue(newSlope), false)
                                 },
                                 approve: () => editing.mark(),

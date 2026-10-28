@@ -213,3 +213,10 @@ Diamond handles accept horizontal and vertical displacement together. Rightward 
 Studio type checking, all 283 Studio tests (43 files), production build and whitespace checks pass. Physical two-axis audio fade dragging remains a manual browser check.
 
 Two-axis preview deployment b23374a6-748e-4b1d-a096-7be9dc22abb9 succeeded: source d8f508057, build 24faa7dc-0229-4203-9092-5c21ebe1122e. Stable alias build-info matches the local build.
+
+
+## Movable fade curve point correction (2026-10-28)
+
+The previous two-axis change only combined X/Y into one slope delta while keeping the diamond at x=0.5. This did not provide a freely moving point. Replace it with a normalized horizontal anchor and a slope fitted through the requested X/Y point. The curve stays within the engine’s existing exponential family and its existing slope bounds; unreachable edge points clamp to that range. Drawing and hit-testing both use the saved anchor. Metadata origin opendaw.studio.audio-fade-handles stores per-side positions using existing MetaDataBox; no schema or engine changes. The anchor and slope share the same undo transaction, persist on encode/decode, and both restore on cancel. Unmodified clicks create no metadata. Shift-drag retains its existing slope gesture.
+
+Studio type check, production build, all 286 Studio tests (43 files) and 21 focused fade tests pass. Tests assert actual on-screen X/Y after horizontal, vertical and diagonal moves, repeated drag origin, zoom, curve limits, project save/load and Undo/Redo/cancel. A direct browser audio import could not be automated: its native picker did not emit the browser filechooser event, and native Codex app access is disallowed by the computer-use tool. Manual audio clip dragging is not claimed as verified.

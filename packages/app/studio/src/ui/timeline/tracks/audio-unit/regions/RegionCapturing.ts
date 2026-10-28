@@ -1,3 +1,4 @@
+import {readFadeCurvePositions} from "./AudioFadeCurveDrag"
 import {AudioFadeHandles} from "./AudioFadeHandles"
 import {
     AnyLoopableRegionBoxAdapter,
@@ -67,7 +68,7 @@ export namespace RegionCapturing {
                         if (Geom.isInsideCircle(x, y, fadeOutX, handleY, handleRadius)) {
                             return {type: "region", part: "fading-out", region}
                         }
-                        for (const handle of AudioFadeHandles.slopeHandles(range, fading, region.position, region.complete, track.size)) {
+                        for (const handle of AudioFadeHandles.slopeHandles(range, fading, region.position, region.complete, track.size, readFadeCurvePositions(region.box))) {
                             if (Geom.isInsideCircle(x, y, handle.x, track.position + handle.y, handleRadius)) {
                                 return {type: "region", part: handle.part, region}
                             }
