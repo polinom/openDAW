@@ -14,7 +14,7 @@ vi.mock("@opendaw/lib-dom", () => ({Events: {
 }}))
 vi.mock("@/ui/timeline/WheelScaling", () => ({WheelScaling: {apply: vi.fn()}}))
 
-const setup = (enabled = true) => {
+const setup = (enabled = true, canSeek: () => boolean = () => true) => {
     const owner = new EventTarget()
     const body = Object.assign(new EventTarget(), {
         ownerDocument: {defaultView: owner}, getBoundingClientRect: () => ({left: 100})
@@ -23,7 +23,7 @@ const setup = (enabled = true) => {
     const range = {xToUnit: (x: number) => 1000 + x * 10}
     const snapping = {round: (unit: number) => Math.round(unit / 100) * 100}
     const seek = vi.fn()
-    const subscription = installEditorNavigation(body, axis, range as never, snapping as never, () => enabled, seek)
+    const subscription = installEditorNavigation(body, axis, range as never, snapping as never, () => enabled, seek, canSeek)
     const pointer = (type: string, clientX: number) => {
         const event = Object.assign(new Event(type), {pointerId: 1, isPrimary: true, button: 0,
             clientX, clientY: 20, altKey: false, shiftKey: false, ctrlKey: false, metaKey: false})
@@ -38,6 +38,19 @@ const setup = (enabled = true) => {
 }
 
 describe("editor navigation", () => {
+    it("retains pinch while playing and resumes seeking after stopping", () => {
+        let playing = true
+        const {pointer, seek, wheel, subscription} = setup(true, () => !playing)
+        pointer("pointerdown", 243)
+        pointer("pointerup", 243)
+        expect(seek).not.toHaveBeenCalled()
+        expect(wheel(true).defaultPrevented).toBe(true)
+        playing = false
+        pointer("pointerdown", 243)
+        pointer("pointerup", 243)
+        expect(seek).toHaveBeenCalledExactlyOnceWith(1400)
+        subscription.terminate()
+    })
     it("disables content seeking while retaining pinch zoom", () => {
         const {pointer, seek, wheel, subscription} = setup()
         StudioPreferences.settings.timeline["click-to-seek"] = false

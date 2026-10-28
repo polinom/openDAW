@@ -12,7 +12,7 @@ vi.mock("@opendaw/lib-dom", () => ({
     }}
 }))
 
-const setup = () => {
+const setup = (canSeek: () => boolean = () => true) => {
     const owner = new EventTarget()
     const element = Object.assign(new EventTarget(), {
         ownerDocument: {defaultView: owner},
@@ -20,7 +20,7 @@ const setup = () => {
     }) as unknown as HTMLElement
     const seek = vi.fn()
     const selectTrack = vi.fn()
-    const subscription = installTimelineClickSeeking(element, seek, selectTrack)
+    const subscription = installTimelineClickSeeking(element, seek, selectTrack, canSeek)
     const pointer = (type: string, values = {}) => {
         const event = Object.assign(new Event(type), {
             pointerId: 1, isPrimary: true, button: 0, clientX: 140, clientY: 20,
@@ -32,6 +32,21 @@ const setup = () => {
 }
 
 describe("timeline click seeking", () => {
+    it.each([[true, true], [false, true], [true, false]])(
+        "does not seek when playing on press=%s or release=%s, but still selects tracks", (onPress, onRelease) => {
+            let playing = onPress
+            const {pointer, seek, selectTrack, subscription} = setup(() => !playing)
+            pointer("pointerdown")
+            playing = onRelease
+            pointer("pointerup")
+            expect(seek).not.toHaveBeenCalled()
+            expect(selectTrack).toHaveBeenCalledOnce()
+            playing = false
+            pointer("pointerdown")
+            pointer("pointerup")
+            expect(seek).toHaveBeenCalledExactlyOnceWith(40)
+            subscription.terminate()
+        })
     it("toggles seeking live without disabling track selection", () => {
         const {pointer, seek, selectTrack, subscription} = setup()
         StudioPreferences.settings.timeline["click-to-seek"] = false

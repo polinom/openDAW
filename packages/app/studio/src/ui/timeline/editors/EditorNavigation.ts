@@ -9,7 +9,7 @@ import {WheelScaling} from "@/ui/timeline/WheelScaling"
 // so keys, labels and parameter controls never become transport targets.
 export const installEditorNavigation = (body: HTMLElement, axis: HTMLElement, range: TimelineRange,
                                         snapping: Snapping, enabled: () => boolean,
-                                        seek: (position: number) => void): Terminable =>
+                                        seek: (position: number) => void, canSeek: () => boolean = () => true): Terminable =>
     Terminable.many(
         installTimelineClickSeeking(body, x => {
             if (!enabled()) {return}
@@ -17,7 +17,7 @@ export const installEditorNavigation = (body: HTMLElement, axis: HTMLElement, ra
             const localX = x + body.getBoundingClientRect().left - bounds.left
             if (localX < 0 || localX >= bounds.width) {return}
             seek(snapping.round(Math.max(0, range.xToUnit(localX))))
-        }),
+        }, undefined, canSeek),
         Events.subscribe(body, "wheel", (event: WheelEvent) => {
             if (!event.ctrlKey || !enabled()) {return}
             const bounds = axis.getBoundingClientRect()

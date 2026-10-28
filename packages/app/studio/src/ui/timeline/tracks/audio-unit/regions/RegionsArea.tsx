@@ -105,7 +105,7 @@ export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollCon
             engine.setPosition(snapping.round(Math.max(0, range.xToUnit(x)))), event => {
             if (Browser.isMacOS() && event.ctrlKey) {return}
             manager.audioUnitAtClientY(event.clientY).ifSome(unit => project.trackSelection.click(unit, event))
-        }),
+        }, () => !engine.isPlaying.getValue()),
         regionSelection.catchupAndSubscribe({
             onSelected: (selectable: AnyRegionBoxAdapter) => selectable.onSelected(),
             onDeselected: (selectable: AnyRegionBoxAdapter) => selectable.onDeselected()

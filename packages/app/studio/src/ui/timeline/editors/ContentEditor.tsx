@@ -240,7 +240,8 @@ export const ContentEditor = ({lifecycle, service}: Construct) => {
     lifecycle.ownAll(
         updateEditor,
         installEditorNavigation(contentEditor, element.querySelector<HTMLElement>(".time-axis")!,
-            range, snapping, () => owner.nonEmpty(), position => engine.setPosition(position)),
+            range, snapping, () => owner.nonEmpty(), position => engine.setPosition(position),
+            () => !engine.isPlaying.getValue()),
         editingSubject.catchupAndSubscribe(() => {
             element.classList.remove("disabled")
             runtime.terminate()

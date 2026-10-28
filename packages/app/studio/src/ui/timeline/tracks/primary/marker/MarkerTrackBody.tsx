@@ -49,7 +49,8 @@ export const MarkerTrackBody = ({lifecycle, service}: Construct) => {
     })
     let lastTimeDown = 0
     lifecycle.ownAll(
-        installTimelineClickSeeking(canvas, x => engine.setPosition(snapping.round(Math.max(0, range.xToUnit(x))))),
+        installTimelineClickSeeking(canvas, x => engine.setPosition(snapping.round(Math.max(0, range.xToUnit(x)))),
+            undefined, () => !engine.isPlaying.getValue()),
         position.subscribe(requestUpdate),
         range.subscribe(requestUpdate),
         markerTrackAdapter.subscribe(requestUpdate),

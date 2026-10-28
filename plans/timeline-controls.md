@@ -174,3 +174,10 @@ Production build also passes after generating the local worker and processor bun
 ## Region clipboard port (2026-10-28)
 
 Ported the region clipboard focus and immediate paused-position fix, with its regressions, from b056afd3b. Only the six code/test files were applied; checkout-specific notes were excluded. See plans/region-clipboard.md. Core/Studio type checks, 140 focused clipboard/engine tests and all 272 Studio tests pass; production build passes. No current-branch browser validation or preview deployment is claimed.
+
+
+## Content seeking only while stopped (2026-10-28)
+
+Arrangement, content editor and Markers click seeking now require stopped transport at both pointerdown and pointerup. Track selection still runs during playback; editor pinch zoom remains independent. Ruler navigation retains its existing behavior. The persistent click-to-seek preference still controls this content behavior. Tests cover playing throughout a click, playback starting/stopping mid-click, seeking after stopping, retained track selection and retained editor pinch.
+
+Studio type checking, all 276 Studio tests across 43 files, production build and whitespace checks pass. The hosted preview is not redeployed for this change.
