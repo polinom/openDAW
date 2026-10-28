@@ -211,3 +211,5 @@ Linear-fade preview deployment f6be0991-a3cf-4d4b-9e2e-886b448864a6 succeeded: s
 Diamond handles accept horizontal and vertical displacement together. Rightward movement delays the fade transition; vertical movement retains its existing fade-in/fade-out direction. Horizontal change is normalized to the rendered fade width, including overlap scaling; a 24 px minimum denominator keeps tiny fades usable. Both directions change the existing slope only, without changing fade length or schema. Cursor uses move rather than vertical resize. Shift-drag retains its original vertical gesture; Undo and cancel keep the original slope snapshot. Tests cover horizontal reversal, zoom scaling, diagonals, short/zero-width bounds and both fade directions.
 
 Studio type checking, all 283 Studio tests (43 files), production build and whitespace checks pass. Physical two-axis audio fade dragging remains a manual browser check.
+
+Two-axis preview deployment b23374a6-748e-4b1d-a096-7be9dc22abb9 succeeded: source d8f508057, build 24faa7dc-0229-4203-9092-5c21ebe1122e. Stable alias build-info matches the local build.
