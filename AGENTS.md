@@ -36,3 +36,5 @@ This block is written and re-added by `turbo` before repository-scoped commands 
 - AudioFadeLengthDrag initializes a fade pulled from zero length to slope 0.5 (linear amplitude), without changing saved nonzero fade shapes or box schema defaults. Preserve both slopes and lengths on cancel/Undo. Diamond and Shift-drag still edit curves.
 
 - Fade diamonds use a movable normalized X anchor, persisted through existing MetaDataBox (opendaw.studio.audio-fade-handles). AudioFadeHandles.curveAfterDrag fits the existing exponential curve through the dragged X/Y point, within slope bounds; drawing and hit-testing use the same anchor. Anchor and slope share Undo/cancel/save. Do not replace this with summed axis deltas at a fixed midpoint.
+
+- On the latest grouping base, TracksManager owns both groupClipSelection (launcher selection) and regionPointer (fade hover). Preserve both across rebases. AudioUnitGrouping uses Option-based parent/bus/create APIs; remembered new-group height is applied inside the successful creation path.

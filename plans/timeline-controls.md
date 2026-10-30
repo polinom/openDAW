@@ -222,3 +222,10 @@ The previous two-axis change only combined X/Y into one slope delta while keepin
 Studio type check, production build, all 286 Studio tests (43 files) and 21 focused fade tests pass. Tests assert actual on-screen X/Y after horizontal, vertical and diagonal moves, repeated drag origin, zoom, curve limits, project save/load and Undo/Redo/cancel. A direct browser audio import could not be automated: its native picker did not emit the browser filechooser event, and native Codex app access is disallowed by the computer-use tool. Manual audio clip dragging is not claimed as verified.
 
 Movable-point deployment a9c56f4f-1b2d-4bdf-bcb2-6ed88ee13211 succeeded: source 2491e0eb3, build 24dbeafd-17e4-48a7-9a8b-fd8ae8592562. Stable build-info and browser script URL match. Saved test project reopens with this build. Direct audio fade dragging remains manual because the native audio picker could not be automated.
+
+
+## Rebase onto latest grouping base (2026-10-29)
+
+Rebased 46 feature commits from grouping base 3bf40ab0a onto origin/codex/track-groups-upstream at bd6949992. The original feature head 458217dd9ec01a2462cc33cba97aa2b6aa05b8d6 is preserved on codex/timeline-controls-before-rebase-2026-10-29. Resolved four files: TracksManager retains both upstream groupClipSelection and feature regionPointer; TrackResize and UnitLane retain relocated imports and TrackHeightDefaults; AudioUnitGrouping keeps upstream Option-based APIs and remembered group height. Range-diff confirms only these compatibility adaptations.
+
+Adapters/core compilation, Studio type checking, all 323 Studio tests (48 files), 184 focused core grouping/clipboard/engine tests (8 files), production build and whitespace checks pass. This verifies source compatibility and automated regressions; no new browser/audio validation is claimed. The Cloudflare preview was not redeployed and still serves the previously documented movable-point build.
