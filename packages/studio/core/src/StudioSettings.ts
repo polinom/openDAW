@@ -1,3 +1,4 @@
+import {MaxTrackHeight} from "@opendaw/studio-enums"
 import {z} from "zod"
 import {ColorSchemes, DefaultColorScheme} from "@opendaw/studio-enums"
 
@@ -30,13 +31,17 @@ export const StudioSettingsSchema = z.object({
         "tempo": z.boolean(),
         "signature": z.boolean(),
         "clips": z.boolean(),
-        "follow-cursor": z.boolean()
+        "follow-cursor": z.boolean(),
+        "click-to-seek": z.boolean().catch(true),
+        "default-track-height": z.number().int().min(48).max(MaxTrackHeight).catch(48)
     }).default({
         "markers": true,
         "tempo": false,
         "signature": false,
         "clips": true,
-        "follow-cursor": false
+        "follow-cursor": false,
+        "click-to-seek": true,
+        "default-track-height": 48
     }),
     "appearance": z.object({
         "color-scheme": z.enum(ColorSchemes).catch(DefaultColorScheme),

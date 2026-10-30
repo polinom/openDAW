@@ -1,3 +1,4 @@
+import {TrackHeightDefaults} from "@opendaw/studio-core"
 import {asDefined, clamp, Lifecycle, Option} from "@opendaw/lib-std"
 import {Int32Field} from "@opendaw/lib-box"
 import {AnimationFrame, Dragging, Events} from "@opendaw/lib-dom"
@@ -19,7 +20,10 @@ export const installTrackResize = (lifecycle: Lifecycle, service: StudioService,
     const height = adapter instanceof Int32Field ? adapter : adapter.box.height
     const {editing} = service.project
     const {scrollableContainer, scrollModel} = trackManager
-    const reset = () => {if (height.getValue() !== 0) {editing.modify(() => height.setValue(0))}}
+    const reset = () => {
+        if (height.getValue() !== 0) {editing.modify(() => height.setValue(0))}
+        TrackHeightDefaults.remember(TrackHeightDefaults.minimum)
+    }
     lifecycle.ownAll(
         height.catchupAndSubscribe(owner => {
             const value = owner.getValue()
@@ -69,7 +73,10 @@ export const installTrackResize = (lifecycle: Lifecycle, service: StudioService,
                     pointerY = clientY
                     apply()
                 },
-                approve: () => editing.mark(),
+                approve: () => {
+                    editing.mark()
+                    if (height.getValue() !== original) {TrackHeightDefaults.remember(height.getValue())}
+                },
                 cancel: () => editing.modify(() => height.setValue(original), false),
                 finally: () => autoScroll.terminate()
             } satisfies Dragging.Process)

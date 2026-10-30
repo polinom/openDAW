@@ -98,7 +98,11 @@ export class EngineFacade implements Engine {
         })
     }
     stop(reset: boolean = false): void {this.#worklet.ifSome(worklet => worklet.stop(reset))}
-    setPosition(position: ppqn): void {this.#worklet.ifSome(worklet => worklet.setPosition(position))}
+    setPosition(position: ppqn): void {
+        // Paused edits must see the requested position before the worklet replies.
+        if (!this.#isPlaying.getValue()) {this.#position.setValue(position)}
+        this.#worklet.ifSome(worklet => worklet.setPosition(position))
+    }
     prepareRecordingState(countIn: boolean): void {this.#worklet.ifSome(worklet => worklet.prepareRecordingState(countIn))}
     stopRecording(): void {this.#worklet.ifSome(worklet => worklet.stopRecording())}
 

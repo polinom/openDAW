@@ -2,7 +2,8 @@ import {afterEach, describe, expect, it} from "vitest"
 import {isDefined, Option, Terminable, UUID} from "@opendaw/lib-std"
 import {ppqn, TimeBase} from "@opendaw/lib-dsp"
 import {ProjectSkeleton, TrackBoxAdapter, TrackType} from "@opendaw/studio-adapters"
-import {AudioFileBox, AudioRegionBox, TrackBox, ValueEventCollectionBox} from "@opendaw/studio-boxes"
+import {AudioFileBox, AudioRegionBox, AudioUnitBox, TrackBox, ValueEventCollectionBox} from "@opendaw/studio-boxes"
+import {AudioUnitType} from "@opendaw/studio-enums"
 import {StudioPreferences} from "../../../StudioPreferences"
 import type {ProjectEnv} from "../../../project/ProjectEnv"
 import {RegionsClipboard} from "./RegionsClipboardHandler"
@@ -100,5 +101,54 @@ describe("RegionsClipboard paste at a fractional playhead (live error 1165)", ()
         expect(regions.length).toBe(2)
         expect(regions[0].complete).toBeLessThanOrEqual(regions[1].position)
         expect(regions[1].position).toBe(959)
+    })
+})
+
+
+describe("region clipboard destination", () => {
+    it("pastes only the region on another unit at the chosen position, with undo", async () => {
+        const {project, trackAdapter: source} = await buildTrackWithRegion(960)
+        let targetBox!: TrackBox
+        project.editing.modify(() => {
+            const unit = AudioUnitBox.create(project.boxGraph, UUID.generate(), box => {
+                box.type.setValue(AudioUnitType.Aux)
+                box.collection.refer(project.rootBox.audioUnits)
+                box.output.refer(project.primaryAudioBusBox.input)
+                box.index.setValue(1)
+            })
+            targetBox = TrackBox.create(project.boxGraph, UUID.generate(), box => {
+                box.type.setValue(TrackType.Audio)
+                box.tracks.refer(unit.tracks)
+                box.target.refer(unit)
+            })
+        })
+        const target = project.boxAdapters.adapterFor(targetBox, TrackBoxAdapter)
+        let position = 0
+        let focused = source
+        const handler = RegionsClipboard.createHandler({
+            getEnabled: () => true, getPosition: () => position, setPosition: value => position = value,
+            editing: project.editing, selection: project.regionSelection, boxGraph: project.boxGraph,
+            boxAdapters: project.boxAdapters, getTracks: () => [source, target],
+            getFocusedTrack: () => Option.wrap(focused), overlapResolver: project.overlapResolver
+        })
+        const count = (type: typeof AudioUnitBox | typeof TrackBox) => project.boxGraph.boxes().filter(box => box instanceof type).length
+        const units = count(AudioUnitBox), tracks = count(TrackBox)
+        project.regionSelection.select(...source.regions.collection.asArray())
+        const copied = handler.copy().unwrap()
+        focused = target
+        position = 3840
+        handler.paste(copied)
+        expect(copied.type).toBe("regions")
+        expect(count(AudioUnitBox)).toBe(units)
+        expect(count(TrackBox)).toBe(tracks)
+        expect(source.regions.collection.asArray()).toHaveLength(1)
+        const pasted = target.regions.collection.asArray()
+        expect(pasted).toHaveLength(1)
+        expect(pasted[0].position).toBe(3840)
+        expect(pasted[0].duration).toBe(960)
+        expect(project.regionSelection.selected()).toEqual(pasted)
+        project.editing.undo()
+        expect(target.regions.collection.asArray()).toHaveLength(0)
+        expect(source.regions.collection.asArray()).toHaveLength(1)
     })
 })

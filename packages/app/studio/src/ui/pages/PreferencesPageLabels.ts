@@ -23,7 +23,8 @@ export namespace PreferencesPageLabels {
                 "tempo": "Show tempo track",
                 "signature": "Show signature track",
                 "clips": "Show clips",
-                "follow-cursor": "Follow cursor"
+                "follow-cursor": "Follow cursor",
+                "click-to-seek": "Click anywhere in timeline or editor to move playhead"
             }
         },
         "appearance": {
