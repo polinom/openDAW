@@ -679,8 +679,8 @@ export interface TidalEffect extends AudioEffect {
     slope: bipolar
     /** Waveform symmetry (0.0 to 1.0, default 0.5) */
     symmetry: unitValue
-    /** Rate in cycles per bar (0 to 16, default 3) */
-    rate: float
+    /** Synced duration index (integer 0-16): 1/1, 1/2, 1/3, 1/4, 3/16, 1/6, 1/8, 3/32, 1/12, 1/16, 3/64, 1/24, 1/32, 1/48, 1/64, 1/96, 1/128. Default 3 = 1/4. */
+    rate: int
     /** Depth (0.0 to 1.0, default 0.75) */
     depth: unitValue
     /** Phase offset in degrees (-180 to 180, default 0) */
@@ -829,6 +829,7 @@ export interface FrequencySplitEffect extends AudioEffect {
  * @group Audio Effects
  */
 export interface AudioEffects {
+    "Wclap": WclapEffect
     /** {@link AutotuneEffect} */
     "Autotune": AutotuneEffect
     /** {@link CompressorEffect} */
@@ -1618,7 +1619,47 @@ export interface Apparat extends Instrument, ScriptDevice {
  * Instrument types by key. Use the keys with {@link Project.addInstrumentUnit}
  * @group Instruments
  */
+/** A plugin offered by the app catalog or stored in this browser. Select by url AND clapId. */
+export interface WclapPlugin {
+    readonly url: string
+    readonly clapId: string
+    readonly name: string
+    readonly vendor: string
+    readonly features: ReadonlyArray<string>
+}
+
+/** A live plugin parameter. Values use the plugin's native range, not normalized 0..1. */
+export interface WclapParameter {
+    readonly uuid: string
+    readonly id: number
+    readonly name: string
+    readonly module: string
+    readonly min: number
+    readonly max: number
+    readonly defaultValue: number
+    readonly flags: number
+    /** Writable unless hidden/read-only; integer parameters are rounded, ranges clamped. */
+    value: number
+}
+
+/** Plugin identity/state and dynamically discovered parameters. */
+export interface WclapControls {
+    readonly url: string
+    readonly clapId: string
+    /** Opaque base64 plugin state; editing individual parameters is preferred. */
+    readonly state: string
+    /** Empty until the live engine reports parameters. Create first, then read in a later script. */
+    readonly parameters: ReadonlyArray<WclapParameter>
+    parameter(id: number): Nullable<WclapParameter>
+    /** Select a discovered plugin; clears previous state/parameters. Never pass arbitrary URLs. */
+    setPlugin(plugin: WclapPlugin): void
+}
+
+export interface WclapInstrument extends Instrument, WclapControls { readonly key: "Wclap" }
+export interface WclapEffect extends AudioEffect, WclapControls { readonly key: "Wclap" }
+
 export interface Instruments {
+    "Wclap": WclapInstrument
     /** {@link Vaporisateur} */
     "Vaporisateur": Vaporisateur
     /** {@link Playfield} */
@@ -1668,6 +1709,7 @@ export type Automatable =
     | AudioEffectCompositeEntry
     | ScriptParameter
     | MIDIOutputParameter
+    | WclapParameter
     | GrooveShuffle
     | AnyModulator
     | Modulation
@@ -2713,6 +2755,8 @@ export interface Api {
     addSample(data: AudioData, name: string): Promise<Sample>
     /** All samples available in the studio (stock and user samples) */
     listSamples(): Promise<ReadonlyArray<Sample>>
+    /** Browser-installed and official catalog plugins. Filter/paginate results before returning over MCP. */
+    listWclapPlugins(): Promise<ReadonlyArray<WclapPlugin>>
     /**
      * Offer a file for download. The studio asks for confirmation, then shows the save dialog
      * @param data - File content

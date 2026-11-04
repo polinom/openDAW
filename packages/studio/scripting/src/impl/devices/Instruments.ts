@@ -14,7 +14,8 @@ import {
     SoundfontDeviceBox,
     SoundfontFileBox,
     TapeDeviceBox,
-    VaporisateurDeviceBox
+    VaporisateurDeviceBox,
+    WclapInstrumentBox
 } from "@opendaw/studio-boxes"
 import {BooleanField, Box, IndexedBox, Int32Field, PointerField, PointerTypes, StringField} from "@opendaw/lib-box"
 import {ClassicWaveform} from "@opendaw/lib-dsp"
@@ -55,11 +56,13 @@ import {
     Soundfont,
     SoundfontFile,
     Tape,
+    WclapInstrument, WclapParameter, WclapPlugin,
     Vaporisateur,
     VaporisateurLFO,
     VaporisateurNoise,
     VaporisateurOscillator
 } from "../../Api"
+import {WclapSupport} from "./Wclap"
 import {Context} from "../Context"
 import {Accessors, Facade, Props} from "../Common"
 import {Fields, FieldSpec} from "../Fields"
@@ -108,7 +111,18 @@ export abstract class InstrumentFacade<B extends InstrumentDeviceBox = Instrumen
 
 export type AnyInstrumentImpl =
     | VaporisateurImpl | PlayfieldImpl | NanoImpl | SoundfontImpl | MIDIOutputImpl | TapeImpl | NeonImpl | TubularImpl | CubedImpl
-    | ApparatImpl | InstrumentCompositeImpl
+    | WclapInstrumentImpl | ApparatImpl | InstrumentCompositeImpl
+
+export class WclapInstrumentImpl extends InstrumentFacade<WclapInstrumentBox> implements WclapInstrument {
+    readonly key = "Wclap" as const
+    constructor(context: Context, box: WclapInstrumentBox) {super(context, box)}
+    get url(): string {return this.box.url.getValue()}
+    get clapId(): string {return this.box.clapId.getValue()}
+    get state(): string {return this.box.state.getValue()}
+    get parameters(): ReadonlyArray<WclapParameter> {return WclapSupport.parameters(this.context, this.box)}
+    parameter(id: number): Nullable<WclapParameter> {return WclapSupport.parameter(this.context, this.box, id)}
+    setPlugin(plugin: WclapPlugin): void {WclapSupport.select(this.context, this.box, plugin)}
+}
 
 export class VaporisateurImpl extends InstrumentFacade<VaporisateurDeviceBox> implements Vaporisateur {
     readonly key = "Vaporisateur" as const
@@ -610,6 +624,7 @@ export class ApparatImpl extends InstrumentFacade<ApparatDeviceBox> implements A
 
 export namespace InstrumentImpls {
     export const wrap = (context: Context, box: Box): AnyInstrumentImpl => context.facade(box, () => {
+        if (box instanceof WclapInstrumentBox) {return new WclapInstrumentImpl(context, box)}
         if (box instanceof VaporisateurDeviceBox) {return new VaporisateurImpl(context, box)}
         if (box instanceof PlayfieldDeviceBox) {return new PlayfieldImpl(context, box)}
         if (box instanceof NanoDeviceBox) {return new NanoImpl(context, box)}

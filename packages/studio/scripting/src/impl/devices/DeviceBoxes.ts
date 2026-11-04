@@ -29,6 +29,7 @@ import {
     VocoderDeviceBox,
     WaveshaperDeviceBox,
     WerkstattDeviceBox,
+    WclapDeviceBox,
     ZeitgeistDeviceBox
 } from "@opendaw/studio-boxes"
 import {InstrumentFactories} from "@opendaw/studio-adapters"
@@ -41,7 +42,7 @@ export type AudioEffectBox =
     | AutotuneDeviceBox | CompressorDeviceBox | ConvolverDeviceBox | CrusherDeviceBox | DattorroReverbDeviceBox
     | DelayDeviceBox | FoldDeviceBox | GateDeviceBox | MaximizerDeviceBox | NeuralAmpDeviceBox | RevampDeviceBox
     | ReverbDeviceBox | StereoToolDeviceBox | TidalDeviceBox | VocoderDeviceBox | WaveshaperDeviceBox
-    | WerkstattDeviceBox | AudioEffectCompositeBox | StereoCompositeBox | FrequencySplitBox | AudioSinkDeviceBox
+    | WclapDeviceBox | WerkstattDeviceBox | AudioEffectCompositeBox | StereoCompositeBox | FrequencySplitBox | AudioSinkDeviceBox
 
 export namespace DeviceBoxes {
     const STEREO_ENTRY_COUNT = 2
@@ -52,7 +53,7 @@ export namespace DeviceBoxes {
     }
 
     export const AudioEffectLabels: Record<keyof AudioEffects, string> = {
-        Autotune: "Autotune", Compressor: "Compressor", Convolver: "Convolver", Crusher: "Crusher",
+        Wclap: "WebCLAP", Autotune: "Autotune", Compressor: "Compressor", Convolver: "Convolver", Crusher: "Crusher",
         DattorroReverb: "Dattorro Reverb", Delay: "Delay", Fold: "Fold", Gate: "Gate", Maximizer: "Maximizer",
         NeuralAmp: "Tone3000", Revamp: "Revamp", Reverb: "Reverb", StereoTool: "Stereo Tool", Tidal: "Tidal",
         Vocoder: "Vocoder", Waveshaper: "Waveshaper", Werkstatt: "Werkstatt", Composite: "FX Composite",
@@ -72,6 +73,7 @@ export namespace DeviceBoxes {
 
     export const audioEffectKeyOf = (boxName: string): keyof AudioEffects => {
         switch (boxName) {
+            case "WclapDeviceBox": return "Wclap"
             case "AutotuneDeviceBox": return "Autotune"
             case "CompressorDeviceBox": return "Compressor"
             case "ConvolverDeviceBox": return "Convolver"
@@ -99,6 +101,7 @@ export namespace DeviceBoxes {
 
     export const instrumentKeyOf = (boxName: string): keyof Instruments => {
         switch (boxName) {
+            case "WclapInstrumentBox": return "Wclap"
             case "VaporisateurDeviceBox": return "Vaporisateur"
             case "PlayfieldDeviceBox": return "Playfield"
             case "NanoDeviceBox": return "Nano"
@@ -119,14 +122,14 @@ export namespace DeviceBoxes {
             .includes(boxName)
 
     export const isAudioEffectBox = (boxName: string): boolean =>
-        ["AutotuneDeviceBox", "CompressorDeviceBox", "ConvolverDeviceBox", "CrusherDeviceBox",
+        ["WclapDeviceBox", "AutotuneDeviceBox", "CompressorDeviceBox", "ConvolverDeviceBox", "CrusherDeviceBox",
             "DattorroReverbDeviceBox", "DelayDeviceBox", "FoldDeviceBox", "GateDeviceBox", "MaximizerDeviceBox",
             "NeuralAmpDeviceBox", "RevampDeviceBox", "ReverbDeviceBox", "StereoToolDeviceBox", "TidalDeviceBox",
             "VocoderDeviceBox", "WaveshaperDeviceBox", "WerkstattDeviceBox", "AudioEffectCompositeBox",
             "StereoCompositeBox", "FrequencySplitBox", "AudioSinkDeviceBox"].includes(boxName)
 
     export const isInstrumentBox = (boxName: string): boolean =>
-        ["VaporisateurDeviceBox", "PlayfieldDeviceBox", "NanoDeviceBox", "SoundfontDeviceBox",
+        ["WclapInstrumentBox", "VaporisateurDeviceBox", "PlayfieldDeviceBox", "NanoDeviceBox", "SoundfontDeviceBox",
             "MIDIOutputDeviceBox", "TapeDeviceBox", "NeonDeviceBox", "TubularDeviceBox", "CubedDeviceBox", "ApparatDeviceBox",
             "InstrumentCompositeBox"]
             .includes(boxName)
@@ -192,6 +195,10 @@ export namespace DeviceBoxes {
                                       index: int): AudioEffectBox => {
         const label = AudioEffectLabels[key]
         switch (key) {
+            case "Wclap":
+                return WclapDeviceBox.create(boxGraph, UUID.generate(), box => {
+                    box.label.setValue(label); box.index.setValue(index); box.host.refer(host)
+                })
             case "Autotune":
                 return AutotuneDeviceBox.create(boxGraph, UUID.generate(), box => {
                     box.label.setValue(label)

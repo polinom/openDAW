@@ -139,6 +139,21 @@ describe("Devices", () => {
         expect(tidal.depth).toBeCloseTo(0.75)
     })
 
+    it("accepts Tidal duration indices and rejects fractional or out-of-range rates", () => {
+        const {project} = createFixture()
+        const unit = project.addAuxUnit()
+        const tidal = unit.addAudioEffect("Tidal", {rate: 0})
+        for (let rate = 0; rate <= 16; rate++) {
+            tidal.rate = rate
+            expect(tidal.rate).toBe(rate)
+        }
+        for (const rate of [0.5, -1, 17, NaN, Infinity]) {
+            expect(() => tidal.rate = rate).toThrow()
+            expect(tidal.rate).toBe(16)
+        }
+        expect(() => unit.addAudioEffect("Tidal", {rate: 0.5})).toThrow(/integer 0-16/)
+    })
+
     it("connects sidechains", () => {
         const {project} = createFixture()
         const kick = project.addInstrumentUnit("Vaporisateur", {label: "Kick"})

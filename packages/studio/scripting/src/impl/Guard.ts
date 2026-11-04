@@ -1,3 +1,4 @@
+import {TidalDeviceBox, WclapParameterBox} from "@opendaw/studio-boxes"
 import {
     BooleanField,
     Constraints,
@@ -90,6 +91,20 @@ export namespace Guard {
     }
 
     export const field = (field: PrimitiveField<PrimitiveValues, PointerTypes>, value: unknown, name: string): PrimitiveValues => {
+        // The persisted float field encodes a discrete duration index, not cycles per bar.
+        if (field.box instanceof TidalDeviceBox && field === field.box.rate) {
+            const rate = finite(value, name)
+            if (!Number.isInteger(rate) || rate < 0 || rate > 16) {
+                return panic(new RangeError(`${name}: expected a Tidal duration index (integer 0-16), got ${rate}`))
+            }
+            return rate
+        }
+        if (field.box instanceof WclapParameterBox && field === field.box.value) {
+            const box = field.box
+            if ((box.flags.getValue() & 12) !== 0) {throw new Error("WCLAP parameter is hidden or read-only")}
+            const n = finite(value, name)
+            return clamp((box.flags.getValue() & 1) ? Math.round(n) : n, box.min.getValue(), box.max.getValue())
+        }
         if (field instanceof Float32Field) {return float32(field.constraints, value, name)}
         if (field instanceof Int32Field) {return int32(field.constraints, value, name)}
         if (field instanceof BooleanField) {return boolean(value, name)}

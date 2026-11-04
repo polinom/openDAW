@@ -74,6 +74,12 @@ export default defineConfig(({command}) => {
                 allow: [resolve(__dirname, "../../../")]
             },
             proxy: {
+                // Keep browser traffic on the Studio HTTPS origin during local bridge development.
+                "/remote-control": {
+                    target: "http://127.0.0.1:3210",
+                    ws: true,
+                    rewrite: path => path.replace(/^\/remote-control/, "")
+                },
                 "/manuals": {target: `${certsExist ? "https" : "http"}://localhost:8081`, secure: false}
             },
             hmr: {

@@ -23,6 +23,7 @@ import {
     UUID
 } from "@opendaw/lib-std"
 import {Promises} from "@opendaw/lib-runtime"
+import {listWclapScriptPlugins} from "@/service/WclapScriptCatalog"
 import {MixdownOptions, ScriptHost} from "@opendaw/studio-scripting"
 import {MenuButton} from "@/ui/components/MenuButton"
 import {
@@ -112,6 +113,7 @@ export const CodeEditorPage: PageFactory<StudioService> = ({lifecycle, service}:
             })
             return sample
         },
+        listWclapPlugins: listWclapScriptPlugins,
         listSamples: async (): Promise<ReadonlyArray<Sample>> => service.sampleService.list(),
         renderMixdown: async (buffer: ArrayBufferLike, {sampleRate}: MixdownOptions): Promise<AudioData> => {
             const project = Project.load(service, buffer as ArrayBuffer)

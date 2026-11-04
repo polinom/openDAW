@@ -137,6 +137,7 @@ export const boot = async ({workersUrl, workletsUrl, wasmProcessorUrl, wasmOffli
     const service: StudioService = new StudioService(context, audioWorklets.value, audioDevices,
         sampleManager, soundfontManager, chainedSampleProvider, chainedSoundfontProvider, chainedWclapProvider,
         cloudAuthManager, buildInfo)
+    window.addEventListener("pagehide", () => service.remoteControl.terminate())
     StudioShortcutManager.install(service)
     if (isDefined(context.playbackStats)) {
         new BufferUnderrunDetector(context.playbackStats, service.engine)

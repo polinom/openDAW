@@ -18,9 +18,11 @@ import {
     TrackBox,
     ValueEventBox,
     WerkstattParameterBox,
-    WerkstattSampleBox
+    WerkstattSampleBox,
+    WclapParameterBox
 } from "@opendaw/studio-boxes"
 import {isDefined, isNull, Nullable, Optional, panic} from "@opendaw/lib-std"
+import {WclapParameterImpl} from "./devices/Wclap"
 import {Context} from "./Context"
 import {Facade} from "./Common"
 import {AnyAudioUnit} from "../Api"
@@ -74,6 +76,7 @@ export namespace Facades {
         if (box instanceof AuxSendBox) {return SendImpl.wrap(context, box)}
         if (box instanceof WerkstattParameterBox) {return ScriptParameterImpl.wrap(context, box)}
         if (box instanceof WerkstattSampleBox) {return ScriptSampleImpl.wrap(context, box)}
+        if (box instanceof WclapParameterBox) {return context.facade(box, () => new WclapParameterImpl(context, box))}
         if (box instanceof MIDIOutputParameterBox) {return MIDIOutputParameterImpl.wrap(context, box)}
         if (box instanceof GrooveShuffleBox) {return GrooveShuffleImpl.wrap(context, box)}
         if (box instanceof LfoModulatorBox || box instanceof StepsModulatorBox

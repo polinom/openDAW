@@ -1,0 +1,24 @@
+{
+  "Name": "gettelecode-opendaw-websocket",
+  "Comment": "Only WebSocket handshake and Origin headers",
+  "HeadersConfig": {
+    "HeaderBehavior": "whitelist",
+    "Headers": {
+      "Quantity": 6,
+      "Items": [
+        "Origin",
+        "Sec-WebSocket-Key",
+        "Sec-WebSocket-Version",
+        "Sec-WebSocket-Protocol",
+        "Sec-WebSocket-Accept",
+        "Sec-WebSocket-Extensions"
+      ]
+    }
+  },
+  "CookiesConfig": {
+    "CookieBehavior": "none"
+  },
+  "QueryStringsConfig": {
+    "QueryStringBehavior": "none"
+  }
+}

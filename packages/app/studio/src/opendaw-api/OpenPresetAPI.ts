@@ -1,3 +1,4 @@
+import {HostedApi} from "@/opendaw-api/HostedApi"
 import {
     asDefined, DefaultObservableValue, isDefined, Lazy, panic, Procedure, RuntimeNotifier, tryCatch, unitValue, UUID
 } from "@opendaw/lib-std"
@@ -7,8 +8,8 @@ import {base64Credentials, OpenDAWHeaders} from "./OpenDAWHeaders"
 import {PresetMeta} from "@opendaw/studio-core"
 
 export class OpenPresetAPI {
-    static readonly ApiRoot = "https://api.opendaw.studio/presets"
-    static readonly FileRoot = "https://assets.opendaw.studio/presets"
+    static readonly ApiRoot = `${HostedApi.apiRoot}/presets`
+    static readonly FileRoot = `${HostedApi.assetRoot}/presets`
 
     @Lazy
     static get(): OpenPresetAPI {return new OpenPresetAPI()}

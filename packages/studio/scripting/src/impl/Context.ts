@@ -2,9 +2,10 @@ import {Box, BoxGraph, Update, UpdateTask} from "@opendaw/lib-box"
 import {BoxIO} from "@opendaw/studio-boxes"
 import {ProjectSkeleton} from "@opendaw/studio-adapters"
 import {Arrays, Func, isDefined, Nullable, Optional, panic, Provider, tryCatch} from "@opendaw/lib-std"
-import {Sample} from "../Api"
+import {Sample, WclapPlugin} from "../Api"
 
 export class Context {
+    wclapPlugins: ReadonlyArray<WclapPlugin> = []
     readonly #skeleton: ProjectSkeleton
     readonly #facades: WeakMap<Box, object>
     readonly #samples: Map<string, Sample>

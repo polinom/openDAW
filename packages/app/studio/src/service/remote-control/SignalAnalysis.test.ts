@@ -1,0 +1,11 @@
+import {describe,it,expect} from "vitest"
+import {analyzeSignal} from "./SignalAnalysis"
+const tone=(seconds:number,amplitude:number,frequency=1000,phase=0)=>Float32Array.from({length:48000*seconds},(_,i)=>amplitude*Math.sin(2*Math.PI*frequency*i/48000+phase))
+describe("signal measurements",()=>{
+ it("reports silence as null dB and never serializes NaN",()=>{const s=analyzeSignal([new Float32Array(48000)],0,48000);expect(s.integratedLufs).toBeNull();expect(s.perChannel[0].truePeakDbtp).toBeNull();expect(s.windows.every(w=>w.rmsDbfs===null)).toBe(true);expect(JSON.stringify(s)).not.toContain('NaN')})
+ it("measures the EBU stereo 1kHz -23 LUFS reference tone",()=>{const a=tone(4,Math.pow(10,-23/20));const s=analyzeSignal([a,a],0,a.length);expect(s.integratedLufs).toBeCloseTo(-23,1);expect(s.maxShortTermLufs).toBeCloseTo(-23,1);expect(s.perChannel[0].samplePeakDbfs).toBeCloseTo(-23,4);expect(s.perChannel[0].rmsDbfs).toBeCloseTo(-26.0103,3)})
+ it("detects an intersample peak on a quarter-rate phase-shifted tone",()=>{const a=tone(1,.9,12000,Math.PI/4);const s=analyzeSignal([a],0,a.length);expect(s.perChannel[0].samplePeakDbfs).toBeCloseTo(20*Math.log10(.9/Math.sqrt(2)),4);expect(s.perChannel[0].truePeakDbtp!).toBeGreaterThan(s.perChannel[0].samplePeakDbfs!+2);expect(Math.abs(s.perChannel[0].truePeakDbtp!-20*Math.log10(.9))).toBeLessThan(.4)})
+ it("uses gating rather than averaging silence into programme loudness",()=>{const a=new Float32Array(48000*8);a.set(tone(4,Math.pow(10,-23/20)),48000*2);const s=analyzeSignal([a,a],0,a.length);expect(s.integratedLufs!).toBeGreaterThan(-23.5);expect(s.integratedLufs!).toBeLessThan(-22.9)})
+ it("measures only the requested range and reports incomplete loudness windows",()=>{const a=tone(1,.5);a.fill(0,0,24000);const s=analyzeSignal([a],0,12000);expect(s.perChannel[0].samplePeakDbfs).toBeNull();expect(s.integratedLufs).toBeNull();expect(s.unavailableReasons.integratedLufs).toContain('400ms')})
+ it("detects opposite-polarity stereo and full-scale samples",()=>{const a=tone(1,2),b=Float32Array.from(a,x=>-x);const s=analyzeSignal([a,b],0,a.length);expect(s.stereoCorrelation).toBeCloseTo(-1,8);expect(s.perChannel[0].fullScaleSamples).toBeGreaterThan(0);expect(s.perChannel[0].samplePeakDbfs!).toBeGreaterThan(0)})
+})

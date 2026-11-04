@@ -1,19 +1,24 @@
 import {AudioData} from "@opendaw/lib-dsp"
 import {ProjectSkeleton} from "@opendaw/studio-adapters"
 import {isDefined, isNull, panic} from "@opendaw/lib-std"
-import {Api, Project, Sample} from "../Api"
+import {Api, Project, Sample, WclapPlugin} from "../Api"
 import {ScriptHostProtocol} from "../ScriptHostProtocol"
 import {ProjectImpl} from "./ProjectImpl"
 import {Guard} from "./Guard"
 
 export class ApiImpl implements Api {
     readonly #protocol: ScriptHostProtocol
+    readonly #projects: Array<ProjectImpl> = []
+    #plugins: ReadonlyArray<WclapPlugin> = []
 
     constructor(protocol: ScriptHostProtocol) {this.#protocol = protocol}
 
     newProject(name?: string): Project {
         const skeleton = ProjectSkeleton.empty({createDefaultUser: true, createOutputMaximizer: false})
-        return new ProjectImpl(this.#protocol, skeleton, isDefined(name) ? Guard.string(name, "name") : "Scripted Project")
+        const project = new ProjectImpl(this.#protocol, skeleton, isDefined(name) ? Guard.string(name, "name") : "Scripted Project")
+        project.context.wclapPlugins = this.#plugins
+        this.#projects.push(project)
+        return project
     }
 
     hasProject(): Promise<boolean> {return this.#protocol.hasProject()}
@@ -25,6 +30,8 @@ export class ApiImpl implements Api {
     async getProject(): Promise<Project> {
         const {buffer, name} = await this.#protocol.fetchProject()
         const project = new ProjectImpl(this.#protocol, ProjectSkeleton.decode(buffer), name)
+        this.#projects.push(project)
+        project.context.wclapPlugins = await this.listWclapPlugins()
         project.context.startRecording()
         return project
     }
@@ -38,6 +45,12 @@ export class ApiImpl implements Api {
     }
 
     listSamples(): Promise<ReadonlyArray<Sample>> {return this.#protocol.listSamples()}
+
+    async listWclapPlugins(): Promise<ReadonlyArray<WclapPlugin>> {
+        this.#plugins = await (this.#protocol.listWclapPlugins?.() ?? Promise.resolve([]))
+        this.#projects.forEach(project => {project.context.wclapPlugins = this.#plugins})
+        return this.#plugins
+    }
 
     async saveFile(data: ArrayBuffer | ArrayBufferView, fileName: string, mimeType?: string): Promise<void> {
         const buffer = toArrayBuffer(data)

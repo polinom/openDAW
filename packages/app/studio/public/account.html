@@ -1,0 +1,11 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>openDAW · Agent access</title>
+<style>body{background:#141820;color:#e7ecf4;font:16px system-ui;max-width:780px;margin:50px auto;padding:20px}a{color:#80bfff}button,input{font:inherit;border:1px solid #536174;border-radius:5px;padding:10px;margin:5px;background:#202936;color:inherit}button{cursor:pointer}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#202936;padding:16px}li{margin:12px 0}#status{min-height:24px}section{margin:32px 0}</style>
+<h1>Agent access</h1><p>Connect your agent to your own openDAW tabs. Each account has separate credentials and sessions.</p><p><a href="/">Open Studio</a></p>
+<button id="login">Sign in / Create account</button><button id="logout" hidden>Sign out</button><p id="status" role="status"></p>
+<div id="account" hidden><section><h2>Agent credentials</h2><p>Create a credential for each agent. Copy it now; it will only be shown once. Credentials expire after 30 days.</p><input id="label" aria-label="Agent name" placeholder="Agent name" maxlength="80"><button id="create">Create credential</button><pre id="secret" hidden></pre><ul id="tokens"></ul></section>
+<section><h2>Pair a Studio tab</h2><p>Generate a code, then open Studio in this tab. Choose Remote Control in the Studio menu, paste the code, and connect. Codes expire after 60 seconds and can only pair a tab signed into your account.</p><button id="pair">Generate pairing code</button><pre id="code" hidden></pre></section>
+<section><h2>Connected tabs</h2><button id="refresh">Refresh</button><ul id="sessions"></ul><p>Keep Studio open. Audio playback requires a click in Studio to enable audio. AWS connections end after two hours; generate a new code and pair again.</p></section>
+<section><h2>MCP connection</h2><pre>URL: https://gettelecode.com/remote-control/mcp
+Transport: Streamable HTTP
+Authorization: Bearer YOUR_AGENT_CREDENTIAL</pre><p>Your MCP client must support a custom Authorization header. It can discover tools, list your sessions, read project state, change tempo, and play or stop.</p></section></div>
+<script type="module" src="/account.js"></script></html>

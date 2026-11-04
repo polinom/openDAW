@@ -1,0 +1,28 @@
+{
+  "name": "@opendaw/remote-bridge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-or-later",
+  "scripts": {
+    "start": "node src/start.mjs",
+    "pair": "node src/pair.mjs",
+    "mcp": "node src/mcp.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-apigatewaymanagementapi": "^3.1149.0",
+    "@aws-sdk/client-dynamodb": "^3.1149.0",
+    "@aws-sdk/client-s3": "^3.1149.0",
+    "@aws-sdk/lib-dynamodb": "^3.1149.0",
+    "@aws-sdk/s3-presigned-post": "^3.1149.0",
+    "@aws-sdk/s3-request-presigner": "^3.1149.0",
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "aws-jwt-verify": "^5.2.1",
+    "ws": "^8.18.0",
+    "zod": "^3.25.0"
+  },
+  "exports": {
+    "./server": "./src/server.mjs"
+  }
+}

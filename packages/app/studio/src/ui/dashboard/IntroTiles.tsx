@@ -40,8 +40,9 @@ const tiles: ReadonlyArray<Tile> = [
     {
         icon: IconSymbol.Lock,
         title: "Privacy",
-        text: "No account, no subscription, no tracking. Your projects stay on your device and are never "
-            + "uploaded to our servers.",
+        text: typeof location !== "undefined" && ["gettelecode.com", "www.gettelecode.com"].includes(location.hostname)
+            ? "Projects are saved in your browser. Optional Remote Control lets agents you authorize read project state and control this tab."
+            : "No account, no subscription, no tracking. Your projects stay on your device and are never uploaded to our servers.",
         path: "/privacy"
     },
     {

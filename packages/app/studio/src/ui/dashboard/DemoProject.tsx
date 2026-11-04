@@ -1,3 +1,4 @@
+import {HostedApi} from "@/opendaw-api/HostedApi"
 import css from "./DemoProject.sass?inline"
 import {Html} from "@opendaw/lib-dom"
 import {createElement} from "@opendaw/lib-jsx"
@@ -15,7 +16,7 @@ type Construct = {
 
 export const DemoProject = ({json, load, extraClassName, cover}: Construct) => {
     const coverUrl = cover ?? (json.hasCover
-        ? `https://api.opendaw.studio/music/cover.php?id=${json.id}&preview=true`
+        ? `${HostedApi.apiRoot}/music/cover.php?id=${json.id}&preview=true`
         : "./empty.svg")
     return (
         <div className={Html.buildClassList(className, extraClassName)} onclick={load}>

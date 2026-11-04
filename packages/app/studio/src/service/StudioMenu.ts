@@ -12,6 +12,7 @@ import {connectRoom} from "@/service/StudioLiveRoomConnect"
 import {NeuralDemux} from "@/service/NeuralDemux.tsx"
 import {NextcloudDialogs} from "@/project/NextcloudDialogs"
 import {openManual} from "@/ui/manuals"
+import {showRemoteControlDialog} from "@/service/remote-control/RemoteControlDialog"
 
 export const populateStudioMenu = (service: StudioService) => {
     const Global = GlobalShortcuts
@@ -152,6 +153,8 @@ export const populateStudioMenu = (service: StudioService) => {
                         label: "Statistics",
                         icon: IconSymbol.Charts
                     }).setTriggerProcedure(() => RouteLocation.get().navigateTo("/stats")),
+                    MenuItem.default({label: "Remote Control…", checked: service.remoteControl.status.getValue().startsWith("Connected")})
+                        .setTriggerProcedure(() => showRemoteControlDialog(service.remoteControl)),
                     createDebugMenu(service)
                 )
             }

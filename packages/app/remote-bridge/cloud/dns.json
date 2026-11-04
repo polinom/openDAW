@@ -1,0 +1,87 @@
+{
+  "hostedZoneId": "/hostedzone/Z06471431669M0KNP1JJT",
+  "nameservers": [
+    "ns-1716.awsdns-22.co.uk",
+    "ns-49.awsdns-06.com",
+    "ns-1384.awsdns-45.org",
+    "ns-838.awsdns-40.net"
+  ],
+  "records": {
+    "Changes": [
+      {
+        "Action": "UPSERT",
+        "ResourceRecordSet": {
+          "Name": "gettelecode.com.",
+          "Type": "A",
+          "AliasTarget": {
+            "HostedZoneId": "Z2FDTNDATAQYW2",
+            "DNSName": "d2nxeio4zpeufd.cloudfront.net.",
+            "EvaluateTargetHealth": false
+          }
+        }
+      },
+      {
+        "Action": "UPSERT",
+        "ResourceRecordSet": {
+          "Name": "gettelecode.com.",
+          "Type": "AAAA",
+          "AliasTarget": {
+            "HostedZoneId": "Z2FDTNDATAQYW2",
+            "DNSName": "d2nxeio4zpeufd.cloudfront.net.",
+            "EvaluateTargetHealth": false
+          }
+        }
+      },
+      {
+        "Action": "UPSERT",
+        "ResourceRecordSet": {
+          "Name": "www.gettelecode.com.",
+          "Type": "A",
+          "AliasTarget": {
+            "HostedZoneId": "Z2FDTNDATAQYW2",
+            "DNSName": "d2nxeio4zpeufd.cloudfront.net.",
+            "EvaluateTargetHealth": false
+          }
+        }
+      },
+      {
+        "Action": "UPSERT",
+        "ResourceRecordSet": {
+          "Name": "www.gettelecode.com.",
+          "Type": "AAAA",
+          "AliasTarget": {
+            "HostedZoneId": "Z2FDTNDATAQYW2",
+            "DNSName": "d2nxeio4zpeufd.cloudfront.net.",
+            "EvaluateTargetHealth": false
+          }
+        }
+      },
+      {
+        "Action": "UPSERT",
+        "ResourceRecordSet": {
+          "Name": "_b14ef25b4d600520d385b38faf5ed0e3.gettelecode.com.",
+          "Type": "CNAME",
+          "TTL": 300,
+          "ResourceRecords": [
+            {
+              "Value": "_bd035eedafa14733ad7a11b1e054e217.jkddzztszm.acm-validations.aws."
+            }
+          ]
+        }
+      },
+      {
+        "Action": "UPSERT",
+        "ResourceRecordSet": {
+          "Name": "_8316f20d1bb2ef746274657eaeeeae2e.www.gettelecode.com.",
+          "Type": "CNAME",
+          "TTL": 300,
+          "ResourceRecords": [
+            {
+              "Value": "_3265522569ae5559c11a61e6e607c066.jkddzztszm.acm-validations.aws."
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

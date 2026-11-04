@@ -23,7 +23,8 @@ import {
     TidalDeviceBox,
     VocoderDeviceBox,
     WaveshaperDeviceBox,
-    WerkstattDeviceBox
+    WerkstattDeviceBox,
+    WclapDeviceBox
 } from "@opendaw/studio-boxes"
 import {Box, Field, IndexedBox, PointerField} from "@opendaw/lib-box"
 import {Mixing, Waveshaper} from "@opendaw/lib-dsp"
@@ -64,8 +65,9 @@ import {
     TidalEffect,
     VocoderEffect,
     WaveshaperEffect,
-    WerkstattEffect
+    WerkstattEffect, WclapEffect, WclapParameter, WclapPlugin
 } from "../../Api"
+import {WclapSupport} from "./Wclap"
 import {Context} from "../Context"
 import {Accessors, Facade, Props} from "../Common"
 import {EffectChain, EffectDeviceBox, EffectFacade} from "./EffectChain"
@@ -109,10 +111,21 @@ export abstract class SideChainableEffect<B extends SideChainBox> extends AudioE
 }
 
 export type AnyAudioEffectImpl =
-    | AutotuneEffectImpl | CompressorEffectImpl | ConvolverEffectImpl | CrusherEffectImpl | DattorroReverbEffectImpl
+    | WclapEffectImpl | AutotuneEffectImpl | CompressorEffectImpl | ConvolverEffectImpl | CrusherEffectImpl | DattorroReverbEffectImpl
     | DelayEffectImpl | FoldEffectImpl | GateEffectImpl | MaximizerEffectImpl | NeuralAmpEffectImpl | RevampEffectImpl
     | ReverbEffectImpl | StereoToolEffectImpl | SinkEffectImpl | TidalEffectImpl | VocoderEffectImpl | WaveshaperEffectImpl
     | WerkstattEffectImpl | AudioEffectCompositeImpl | StereoSplitEffectImpl | FrequencySplitEffectImpl
+
+export class WclapEffectImpl extends AudioEffectFacade<WclapDeviceBox> implements WclapEffect {
+    readonly key = "Wclap" as const
+    constructor(context: Context, box: WclapDeviceBox) {super(context, box)}
+    get url(): string {return this.box.url.getValue()}
+    get clapId(): string {return this.box.clapId.getValue()}
+    get state(): string {return this.box.state.getValue()}
+    get parameters(): ReadonlyArray<WclapParameter> {return WclapSupport.parameters(this.context, this.box)}
+    parameter(id: number): Nullable<WclapParameter> {return WclapSupport.parameter(this.context, this.box, id)}
+    setPlugin(plugin: WclapPlugin): void {WclapSupport.select(this.context, this.box, plugin)}
+}
 
 export class AutotuneEffectImpl extends AudioEffectFacade<AutotuneDeviceBox> implements AutotuneEffect {
     readonly key = "Autotune" as const
@@ -576,6 +589,7 @@ export class FrequencySplitEffectImpl extends AudioEffectFacade<FrequencySplitBo
 
 export namespace AudioEffectImpls {
     export const wrap = (context: Context, box: Box): AnyAudioEffectImpl => context.facade(box, () => {
+        if (box instanceof WclapDeviceBox) {return new WclapEffectImpl(context, box)}
         if (box instanceof AutotuneDeviceBox) {return new AutotuneEffectImpl(context, box)}
         if (box instanceof CompressorDeviceBox) {return new CompressorEffectImpl(context, box)}
         if (box instanceof ConvolverDeviceBox) {return new ConvolverEffectImpl(context, box)}
